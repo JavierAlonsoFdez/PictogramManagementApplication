@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PictoManagementServer", "PictoManagementServer\PictoManagementServer.csproj", "{1E6D6E1C-DA5D-496F-BE0D-D5C8B38EEDD5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PictoManagementVocabulary", "PictoManagementVocabulary\PictoManagementVocabulary.csproj", "{BE854A4E-2710-4BA3-927D-1A62B12771E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E6D6E1C-DA5D-496F-BE0D-D5C8B38EEDD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E6D6E1C-DA5D-496F-BE0D-D5C8B38EEDD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E6D6E1C-DA5D-496F-BE0D-D5C8B38EEDD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E6D6E1C-DA5D-496F-BE0D-D5C8B38EEDD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE854A4E-2710-4BA3-927D-1A62B12771E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE854A4E-2710-4BA3-927D-1A62B12771E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE854A4E-2710-4BA3-927D-1A62B12771E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE854A4E-2710-4BA3-927D-1A62B12771E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3768EC9A-5962-4452-A867-45AC3254F0E7}
+	EndGlobalSection
+EndGlobal

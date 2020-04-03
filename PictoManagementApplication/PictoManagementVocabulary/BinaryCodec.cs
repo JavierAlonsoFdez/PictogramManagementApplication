@@ -4,14 +4,13 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
-
 namespace PictoManagementVocabulary
 {
-    public class BinaryCodec<T> : ICodec<T>
+    public class BinaryCodec<T>: ICodec<T>
     {
         public byte[] Encode(T obj)
         {
-            using (var ms = new MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
                 formatter.Serialize(ms, obj);
@@ -19,9 +18,9 @@ namespace PictoManagementVocabulary
             }
         }
 
-        public T Decode(byte[] message)
+        public T Decode(byte[] source)
         {
-            using (MemoryStream ms = new MemoryStream(message))
+            using (MemoryStream ms = new MemoryStream(source))
             {
                 var formatter = new BinaryFormatter();
                 ms.Seek(0, SeekOrigin.Begin);
