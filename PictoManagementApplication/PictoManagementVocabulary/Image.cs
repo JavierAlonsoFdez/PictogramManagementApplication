@@ -2,6 +2,7 @@
 
 namespace PictoManagementVocabulary
 {
+    [Serializable()]
     public class Image
     {
         private string _title;

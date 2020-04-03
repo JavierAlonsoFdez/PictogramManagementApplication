@@ -4,6 +4,7 @@ using System.Text;
 
 namespace PictoManagementVocabulary
 {
+    [Serializable()]
     public class Dashboard
     {
         private string _title;
