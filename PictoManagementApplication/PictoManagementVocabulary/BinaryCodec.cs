@@ -6,8 +6,17 @@ using System.Text;
 
 namespace PictoManagementVocabulary
 {
+    /// <summary>
+    /// Codificador binario parametrizable
+    /// </summary>
+    /// <typeparam name="T">Tipo de dato</typeparam>
     public class BinaryCodec<T>: ICodec<T>
     {
+        /// <summary>
+        /// Codifica un objeto en una secuencia de bytes
+        /// </summary>
+        /// <param name="obj">Objeto a codificar</param>
+        /// <returns>Retorna una secuencia de bytes que es la representación del objeto en binario</returns>
         public byte[] Encode(T obj)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -18,6 +27,11 @@ namespace PictoManagementVocabulary
             }
         }
 
+        /// <summary>
+        /// Decodifica una secuencia de bytes a un objeto
+        /// </summary>
+        /// <param name="source">Secuencia de bytes a decodificar</param>
+        /// <returns>Retorna un objeto de la clase parametrizada</returns>
         public T Decode(byte[] source)
         {
             using (MemoryStream ms = new MemoryStream(source))
