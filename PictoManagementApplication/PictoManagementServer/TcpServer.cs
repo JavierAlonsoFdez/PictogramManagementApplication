@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using PictoManagementVocabulary;
 
 namespace PictoManagementServer
 {
@@ -56,16 +58,31 @@ namespace PictoManagementServer
             TcpClient clientTcp = (TcpClient)obj;
             Boolean clientTcpConnected;
 
-            StreamWriter streamWriter = new StreamWriter(clientTcp.GetStream(), Encoding.ASCII);
-            StreamReader streamReader = new StreamReader(clientTcp.GetStream(), Encoding.ASCII);
-
+            NetworkStream netStream = clientTcp.GetStream();
+            
             clientTcpConnected = true;
-
+            RequestProcessor requestProcessor = new RequestProcessor();
+            
             while(clientTcpConnected)
             {
-                // PARTE PRINCIPAL DEL PROGRAMA
-                // Process request if is type image -> prepare image(s)
-                // if is type dashboard -> prepare dashboard(s)
+                var rcvBuffer = new byte[clientTcp.ReceiveBufferSize];
+                netStream.Read(rcvBuffer, 0, (int)clientTcp.ReceiveBufferSize);
+
+                Request request = requestProcessor.ProcessMessage(rcvBuffer);
+                
+                if (request.Type.ToLower() == "image")
+                {
+                    // The request is asking for image(s)
+                }
+                else if (request.Type.ToLower() == "dashboard")
+                {
+                    // The request is asking for dashboard(s)
+                }
+                else if (request.Type.ToLower() == "disconnect")
+                {
+                    clientTcpConnected = false;
+                    clientTcp.Close();
+                }
             }
         }
 
