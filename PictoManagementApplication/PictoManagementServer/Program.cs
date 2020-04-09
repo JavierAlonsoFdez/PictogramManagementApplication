@@ -14,6 +14,9 @@ namespace PictoManagementServer
         {
             // Crea un servidor TCP concurrente multihilo en la dirección de loopback en el puerto 12000
             // TODO: Pasar estos parametros a un fichero de configuración 
+            var log = LogSingleTon.Instance;
+            log.LogMessage("Starting PictoManagementServer");
+
             TcpServer serverTcp = new TcpServer(IPAddress.Loopback, 12000);
         }
     }

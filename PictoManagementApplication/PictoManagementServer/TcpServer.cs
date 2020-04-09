@@ -13,6 +13,7 @@ namespace PictoManagementServer
     {
         private TcpListener _tcpServer;
         private Boolean _isRunning;
+        private LogSingleTon log = LogSingleTon.Instance;
 
         /// <summary>
         /// Constructor de la clase, lanza un servidor concurrente multihilo
@@ -23,6 +24,8 @@ namespace PictoManagementServer
         {
             _tcpServer = new TcpListener(ipAddress, port);
             _tcpServer.Start();
+
+            log.LogMessage("TCP server started");
 
             _isRunning = true;
 
@@ -40,6 +43,7 @@ namespace PictoManagementServer
 
                 Thread t = new Thread(new ParameterizedThreadStart(HandleClient));
                 t.Start(newClient);
+                log.LogMessage("Started new client");
             }
         }
         
@@ -60,6 +64,8 @@ namespace PictoManagementServer
             while(clientTcpConnected)
             {
                 // PARTE PRINCIPAL DEL PROGRAMA
+                // Process request if is type image -> prepare image(s)
+                // if is type dashboard -> prepare dashboard(s)
             }
         }
 
