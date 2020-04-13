@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -44,8 +45,9 @@ namespace PictoManagementServer
                 TcpClient newClient = _tcpServer.AcceptTcpClient();
 
                 Thread t = new Thread(new ParameterizedThreadStart(HandleClient));
-                t.Start(newClient);
                 log.LogMessage("Started new client");
+                t.Start(newClient);
+                log.LogMessage("Client finished");
             }
         }
         
@@ -61,28 +63,33 @@ namespace PictoManagementServer
             NetworkStream netStream = clientTcp.GetStream();
             
             clientTcpConnected = true;
-            RequestProcessor requestProcessor = new RequestProcessor();
             
             while(clientTcpConnected)
             {
                 var rcvBuffer = new byte[clientTcp.ReceiveBufferSize];
                 netStream.Read(rcvBuffer, 0, (int)clientTcp.ReceiveBufferSize);
+                RequestProcessor requestProcessor = new RequestProcessor(rcvBuffer);
 
-                Request request = requestProcessor.ProcessMessage(rcvBuffer);
-                
-                if (request.Type.ToLower() == "image")
+                // Se comprueba el tipo de petición recibida y en función de eso se realizan diferentes acciones
+                if (requestProcessor.GetTypeOfRequest() == "image")
                 {
-                    // The request is asking for image(s)
+                    ImageRequestProcessor imageProcessor = new ImageRequestProcessor(requestProcessor.GetBodyOfRequest());
+                    foreach (Image img in imageProcessor.GetImages())
+                    {
+                        byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
+                        netStream.Write(sndBuffer, 0, sndBuffer.Length);
+                    }
                 }
-                else if (request.Type.ToLower() == "dashboard")
+                else if (requestProcessor.GetTypeOfRequest() == "dashboard")
                 {
-                    // The request is asking for dashboard(s)
+
                 }
-                else if (request.Type.ToLower() == "disconnect")
+                else if (requestProcessor.GetTypeOfRequest() == "disconnect")
                 {
                     clientTcpConnected = false;
                     clientTcp.Close();
                 }
+
             }
         }
 
