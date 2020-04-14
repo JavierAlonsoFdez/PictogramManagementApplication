@@ -80,7 +80,11 @@ namespace PictoManagementServer
                         netStream.Write(sndBuffer, 0, sndBuffer.Length);
                     }
                 }
-                else if (requestProcessor.GetTypeOfRequest() == "dashboard")
+                else if (requestProcessor.GetTypeOfRequest() == "get dashboard")
+                {
+
+                }
+                else if (requestProcessor.GetTypeOfRequest() == "insert dashboard")
                 {
 
                 }
