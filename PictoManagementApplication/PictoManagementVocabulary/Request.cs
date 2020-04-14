@@ -14,7 +14,7 @@ namespace PictoManagementVocabulary
         private string _requestBody;
 
         /// <summary>
-        /// Método público para acceder a la propiedad privada _type
+        /// Propiedad pública para acceder a la propiedad privada _type
         /// </summary>
         public string Type
         {
@@ -23,7 +23,7 @@ namespace PictoManagementVocabulary
         }
 
         /// <summary>
-        /// Método para acceder a la propiedad privada _requestBody
+        /// Propiedad pública para acceder a la propiedad privada _requestBody
         /// </summary>
         public string RequestBody
         {

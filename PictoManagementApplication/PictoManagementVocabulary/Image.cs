@@ -10,18 +10,18 @@ namespace PictoManagementVocabulary
     {
         private string _title;
         private string _path;
-        
+
         /// <summary>
-        /// Método para acceder a la propiedad _title
+        /// Propiedad pública para acceder a la propiedad _title
         /// </summary>
         public string Title
         {
             get { return _title; }
             set { _title = value; }
         }
-        
+
         /// <summary>
-        /// Método para acceder a la propiedad _path
+        /// Propiedad pública para acceder a la propiedad _path
         /// </summary>
         public string Path
         {

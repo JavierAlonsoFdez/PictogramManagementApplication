@@ -14,16 +14,16 @@ namespace PictoManagementVocabulary
         private Image[] _images;
         
         /// <summary>
-        /// Método para acceder a la propiedad _title
+        /// Propiedad pública para acceder a la propiedad _title
         /// </summary>
         public string Title
         {
             get { return _title; }
             set { _title = value; }
         }
-        
+
         /// <summary>
-        /// Método para acceder a la propiedad _images
+        /// Propiedad pública para acceder a la propiedad _images
         /// </summary>
         public Image[] Images
         {
