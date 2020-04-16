@@ -80,14 +80,30 @@ namespace PictoManagementServer
                         netStream.Write(sndBuffer, 0, sndBuffer.Length);
                     }
                 }
+
                 else if (requestProcessor.GetTypeOfRequest() == "get dashboard")
                 {
+                    DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
+                    List<string> dashboardList = dashboardProcessor.GetDataFromDashboard(requestProcessor.GetBodyOfRequest());
 
+                    foreach (string dashboardImages in dashboardList)
+                    {
+                        ImageRequestProcessor imageProcessor = new ImageRequestProcessor(dashboardImages);
+                        foreach (Image img in imageProcessor.GetImages())
+                        {
+                            byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
+                            netStream.Write(sndBuffer, 0, sndBuffer.Length);
+                        }
+                    }
                 }
+
                 else if (requestProcessor.GetTypeOfRequest() == "insert dashboard")
                 {
-
+                    DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
+                    string[] request = dashboardProcessor.PrepareRequestForInsert(requestProcessor.GetBodyOfRequest());
+                    dashboardProcessor.InsertDataIntoDashboards(request[0], request[1]);
                 }
+
                 else if (requestProcessor.GetTypeOfRequest() == "disconnect")
                 {
                     clientTcpConnected = false;
