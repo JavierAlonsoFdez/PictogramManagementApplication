@@ -43,21 +43,36 @@ namespace PictoManagementServer
             using (SqlCommand command = new SqlCommand(query, _sqlConnection))
             {
                 command.Parameters.Add("title", SqlDbType.VarChar).Value = dashboardName;
-                _sqlConnection.Open();
-                int result = command.ExecuteNonQuery();
-                if (result > 0)
+
+                try
                 {
-                    
-                    using (SqlDataReader dataReader = command.ExecuteReader())
+                    _sqlConnection.Open();
+
+
+                    int result = command.ExecuteNonQuery();
+
+                    if (result > 0)
                     {
-                        while (dataReader.Read())
+
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            dashboards.Add(dataReader.GetString(dataReader.GetOrdinal("data")));
+                            while (dataReader.Read())
+                            {
+                                dashboards.Add(dataReader.GetString(dataReader.GetOrdinal("data")));
+                            }
+                            dataReader.Close();
                         }
-                    }   
+
+
+                    }
+
+                    _sqlConnection.Dispose();
+                }
+                catch (SqlException se)
+                {
+                    throw se.InnerException;
                 }
             }
-            _sqlConnection.Dispose();
             if (dashboards.Count > 0)
                 return dashboards;
 
@@ -74,11 +89,18 @@ namespace PictoManagementServer
                 command.Parameters.Add("title", SqlDbType.VarChar).Value = dashboardName;
                 command.Parameters.Add("data", SqlDbType.VarChar).Value = dashboardImages;
 
-                _sqlConnection.Open();
-
-                var result = command.ExecuteNonQuery();
-
-                _sqlConnection.Dispose();
+                try
+                {
+                    _sqlConnection.Open();
+                
+                    var result = command.ExecuteNonQuery();
+                    _sqlConnection.Dispose();
+                }
+                catch (SqlException se)
+                {
+                    Console.WriteLine("Error during sql connection: {0}", se.Source);
+                    throw;
+                }
             }
         }
     }
