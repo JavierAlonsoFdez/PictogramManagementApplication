@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PictoManagementGUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="PictoManagementApplication" Height="450" Width="800">
+    <Grid Margin=" 0,0,0,20">
         <StackPanel VerticalAlignment="Top">
             <Menu Width="Auto" Height="40">
-                <MenuItem Header="_Home">
-                    <MenuItem x:Name="AppExit" Header="E_xit" HorizontalAlignment="Left" Width="140"/>
+                <MenuItem Header="_Inicio" Height="40" ButtonBase.Click="MenuItem_Click" Click="MenuItem_Click">
                 </MenuItem>
-                <MenuItem Header="_Tools">
-                    <MenuItem x:Name="Options" Header="_Options" HorizontalAlignment="Left" Width="140"/>
+                <MenuItem Header="_Crear Tablero" Height="40">
+                    <MenuItem x:Name="FromZero" Header="_De Cero" HorizontalAlignment="Left" Width="140"/>
+                    <MenuItem x:Name="FromExistant" Header="_Precreado" HorizontalAlignment="Left" Width="140"/>
                 </MenuItem>
-                <MenuItem Header="_Help">
+                <MenuItem Header="_Help" Height="40">
                     <MenuItem x:Name="About" Header="&amp;About" HorizontalAlignment="Left" Width="140"/>
                 </MenuItem>
             </Menu>
