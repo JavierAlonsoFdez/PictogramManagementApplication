@@ -15,7 +15,7 @@ namespace PictoManagementServer
     class TcpServer
     {
         private TcpListener _tcpServer;
-        private Boolean _isRunning;
+        private bool _isRunning;
         private LogSingleTon log = LogSingleTon.Instance;
 
         /// <summary>
@@ -58,11 +58,9 @@ namespace PictoManagementServer
         public void HandleClient(object obj)
         {
             TcpClient clientTcp = (TcpClient)obj;
-            Boolean clientTcpConnected;
+            bool clientTcpConnected= true;
 
             NetworkStream netStream = clientTcp.GetStream();
-            
-            clientTcpConnected = true;
             
             while(clientTcpConnected)
             {
