@@ -1,9 +1,7 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using PictoManagementVocabulary;
 
@@ -14,109 +12,127 @@ namespace PictoManagementServer
     /// </summary>
     class TcpServer
     {
-        private TcpListener _tcpServer;
-        private bool _isRunning;
+        /// <summary>
+        /// Instancia del log para generar una traza
+        /// </summary>
         private LogSingleTon log = LogSingleTon.Instance;
 
         /// <summary>
-        /// Constructor de la clase, lanza un servidor concurrente multihilo
+        /// Constructor de la clase, genera un tcpListener con el puerto indicado
         /// </summary>
-        /// <param name="ipAddress">Dirección en la que escuchará el servidor</param>
-        /// <param name="port">Puerto en el que escuchará el servidor</param>
-        public TcpServer(System.Net.IPAddress ipAddress,int port)
+        /// <param name="port">Puerto donde va a escuchar el tcpListener</param>
+        public TcpServer(int port)
         {
-            _tcpServer = new TcpListener(ipAddress, port);
-            _tcpServer.Start();
+            TcpListener tcpListener = new TcpListener(IPAddress.Any, port);
 
-            log.LogMessage("TCP server started");
+            tcpListener.Start();
+            log.LogMessage("Started TCP Server");
 
-            _isRunning = true;
-
-            LoopClients();
+            log.LogMessage("Accepting clients");
+            AcceptClients(tcpListener);
         }
 
         /// <summary>
-        /// Acepta nuevos clientes tcp y les asigna un thread a cada uno
+        /// Método para aceptar clientes en hilos trabajadores y procesar peticiones
         /// </summary>
-        public void LoopClients()
+        /// <param name="tcpListener">listener que aceptará los clientes</param>
+        public void AcceptClients(TcpListener tcpListener)
         {
-            while(_isRunning)
+            var tcpClientThread = new Thread(() =>
             {
-                TcpClient newClient = _tcpServer.AcceptTcpClient();
+                TcpClient tcpClient = tcpListener.AcceptTcpClient();
+                log.LogMessage("Client accepted");
 
-                Thread t = new Thread(new ParameterizedThreadStart(HandleClient));
-                log.LogMessage("Started new client");
-                t.Start(newClient);
-                log.LogMessage("Client finished");
-            }
+                bool clientConnected = true;
+
+                NetworkStream netStream = tcpClient.GetStream();
+
+                do
+                {
+                    var rcvBuffer = new byte[tcpClient.ReceiveBufferSize];
+                    netStream.Read(rcvBuffer, 0, (int)tcpClient.ReceiveBufferSize);
+                    RequestProcessor requestProcessor = new RequestProcessor(rcvBuffer);
+                }
+                while (clientConnected);
+
+                tcpClient.Close();
+            });
+            tcpClientThread.Start();
         }
-        
+
         /// <summary>
-        /// Manejador de clientes, genera un stream para lectura y otro para escritura para atender las peticiones del cliente
+        /// Comprueba el tipo de petición y la procesa
         /// </summary>
-        /// <param name="obj"></param>
-        public void HandleClient(object obj)
+        /// <param name="requestType">Tipo de petición recibida.</param>
+        /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
+        /// <param name="networkStream">Referencia al stream para enviar datos.</param>
+        /// <param name="clientConnected">Referencia al booleano que se comprueba en el bucle principal.</param>
+        public void CheckTypeOfRequestAndProcess(string requestType,
+            string bodyOfRequest, NetworkStream networkStream,
+            ref bool clientConnected)
         {
-            TcpClient clientTcp = (TcpClient)obj;
-            bool clientTcpConnected= true;
-
-            NetworkStream netStream = clientTcp.GetStream();
-            
-            while(clientTcpConnected)
+            switch (requestType)
             {
-                var rcvBuffer = new byte[clientTcp.ReceiveBufferSize];
-                netStream.Read(rcvBuffer, 0, (int)clientTcp.ReceiveBufferSize);
-                RequestProcessor requestProcessor = new RequestProcessor(rcvBuffer);
-
-                // Se comprueba el tipo de petición recibida y en función de eso se realizan diferentes acciones
-                if (requestProcessor.GetTypeOfRequest() == "image")
-                {
-                    ImageRequestProcessor imageProcessor = new ImageRequestProcessor(requestProcessor.GetBodyOfRequest());
-                    foreach (Image img in imageProcessor.GetImages())
-                    {
-                        byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
-                        netStream.Write(sndBuffer, 0, sndBuffer.Length);
-                    }
-                }
-
-                else if (requestProcessor.GetTypeOfRequest() == "get dashboard")
-                {
-                    DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
-                    List<string> dashboardList = dashboardProcessor.GetDataFromDashboard(requestProcessor.GetBodyOfRequest());
-
-                    foreach (string dashboardImages in dashboardList)
-                    {
-                        ImageRequestProcessor imageProcessor = new ImageRequestProcessor(dashboardImages);
-                        foreach (Image img in imageProcessor.GetImages())
-                        {
-                            byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
-                            netStream.Write(sndBuffer, 0, sndBuffer.Length);
-                        }
-                    }
-                }
-
-                else if (requestProcessor.GetTypeOfRequest() == "insert dashboard")
-                {
-                    DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
-                    string[] request = dashboardProcessor.PrepareRequestForInsert(requestProcessor.GetBodyOfRequest());
-                    dashboardProcessor.InsertDataIntoDashboards(request[0], request[1]);
-                }
-
-                else if (requestProcessor.GetTypeOfRequest() == "disconnect")
-                {
-                    clientTcpConnected = false;
-                    clientTcp.Close();
-                }
-
+                case "image":
+                    ProcessImageRequest(bodyOfRequest, ref networkStream);
+                    break;
+                case "get dashboard":
+                    ProcessGetDashboardRequest(bodyOfRequest, ref networkStream);
+                    break;
+                case "insert dashboard":
+                    ProcessInsertDashboardRequest(bodyOfRequest);
+                    break;
+                default:
+                    clientConnected = false;
+                    break;
             }
         }
 
         /// <summary>
-        /// Para el servidor TCP
+        /// Procesa una petición para recibir imágenes
         /// </summary>
-        public void StopTcpServer()
+        /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
+        /// <param name="netStream">Referencia al stream para enviar datos.</param>
+        public void ProcessImageRequest(string bodyOfRequest, ref NetworkStream netStream)
         {
-            _tcpServer.Stop();
+            ImageRequestProcessor imageProcessor = new ImageRequestProcessor(bodyOfRequest);
+            foreach (Image img in imageProcessor.GetImages())
+            {
+                byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
+                netStream.Write(sndBuffer, 0, sndBuffer.Length);
+            }
+        }
+
+        /// <summary>
+        /// Procesa la petición para insertar un dashboard en la base de datos del servidor.
+        /// </summary>
+        /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
+        public void ProcessInsertDashboardRequest(string bodyOfRequest)
+        {
+            DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
+            string[] request = dashboardProcessor.PrepareRequestForInsert(bodyOfRequest);
+            dashboardProcessor.InsertDataIntoDashboards(request[0], request[1]);
+        }
+
+        /// <summary>
+        /// Procesa la petición para recibir dashboards
+        /// </summary>
+        /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
+        /// <param name="netStream">Referencia al stream para enviar datos.</param>
+        public void ProcessGetDashboardRequest(string bodyOfRequest, ref NetworkStream netStream)
+        {
+            DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
+            List<string> dashboardList = dashboardProcessor.GetDataFromDashboard(bodyOfRequest);
+
+            foreach (string dashboardImages in dashboardList)
+            {
+                ImageRequestProcessor imageProcessor = new ImageRequestProcessor(dashboardImages);
+                foreach (Image img in imageProcessor.GetImages())
+                {
+                    byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
+                    netStream.Write(sndBuffer, 0, sndBuffer.Length);
+                }
+            }
         }
     }
 }

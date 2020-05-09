@@ -17,7 +17,7 @@ namespace PictoManagementServer
             var log = LogSingleTon.Instance;
             log.LogMessage("Starting PictoManagementServer");
 
-            TcpServer serverTcp = new TcpServer(IPAddress.Loopback, 12000);
+            TcpServer serverTcp = new TcpServer(12000);
         }
     }
 }
