@@ -11,12 +11,21 @@ namespace PictoManagementServer
     {
         private string _sqlCnStr = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=Dashboards;Integrated Security=SSPI";
         private SqlConnection _sqlConnection;
+        private LogSingleTon log = LogSingleTon.Instance;
 
+        /// <summary>
+        /// Constructor de la clase, genera la conexión con la base de datos.
+        /// </summary>
         public DashboardRequestProcessor()
         {
             _sqlConnection = new SqlConnection(_sqlCnStr);
         }
 
+        /// <summary>
+        /// Prepara la inserción en la base de datos
+        /// </summary>
+        /// <param name="requestBody">Cuerpo de la petición en formato string</param>
+        /// <returns>Retorna un array de string que es la request preparada para ser insertada en la base de datos</returns>
         public string[] PrepareRequestForInsert(string requestBody)
         {
             string[] requestForInsert = new string[2];
@@ -34,6 +43,11 @@ namespace PictoManagementServer
             return requestForInsert;
         }
 
+        /// <summary>
+        /// Obtiene los datos de la base de datos que es el dashboard solicitado
+        /// </summary>
+        /// <param name="dashboardName">Nombre del dashboard que se solicita</param>
+        /// <returns>Devuelve una lista de strings que son todos los dashboard que coincidan con el nombre recibido</returns>
         public List<string> GetDataFromDashboard(string dashboardName)
         {
             string query = "SELECT data FROM dashboards WHERE title LIKE @title";
@@ -70,6 +84,7 @@ namespace PictoManagementServer
                 }
                 catch (SqlException se)
                 {
+                    log.LogError("Error executing the query: " + se.StackTrace);
                     throw se.InnerException;
                 }
             }
@@ -79,6 +94,11 @@ namespace PictoManagementServer
             return null;
         }
 
+        /// <summary>
+        /// Inserta una nueva entrada en la base de datos con el nombre y las imágenes que componen el dashboard
+        /// </summary>
+        /// <param name="dashboardName">Nombre del dashboard</param>
+        /// <param name="dashboardImages">Imágenes que componen el dashboard</param>
         public void InsertDataIntoDashboards (string dashboardName, string dashboardImages)
         {
             string query = "INSERT INTO dashboards (title, data) VALUES (@title, @|data)";

@@ -43,6 +43,10 @@ namespace PictoManagementServer
             return _request.Type.ToLower();
         }
 
+        /// <summary>
+        /// Devuelve el cuerpo de la petición en forma de string
+        /// </summary>
+        /// <returns>Propiedad RequestBody de la petición</returns>
         public string GetBodyOfRequest()
         {
             return _request.RequestBody;
