@@ -50,7 +50,7 @@ namespace PictoManagementServer
         /// <returns>Devuelve una lista de strings que son todos los dashboard que coincidan con el nombre recibido</returns>
         public List<string> GetDataFromDashboard(string dashboardName)
         {
-            string query = "SELECT data FROM dashboards WHERE title LIKE @title";
+            string query = "SELECT Images FROM Dashboards WHERE title LIKE @title";
             List<string> dashboards = new List<string>();
 
             using (_sqlConnection)
@@ -62,22 +62,13 @@ namespace PictoManagementServer
                 {
                     _sqlConnection.Open();
 
-
-                    int result = command.ExecuteNonQuery();
-
-                    if (result > 0)
+                    using (SqlDataReader dataReader = command.ExecuteReader())
                     {
-
-                        using (SqlDataReader dataReader = command.ExecuteReader())
+                        while (dataReader.Read())
                         {
-                            while (dataReader.Read())
-                            {
-                                dashboards.Add(dataReader.GetString(dataReader.GetOrdinal("data")));
-                            }
-                            dataReader.Close();
+                            dashboards.Add(dataReader.GetString(dataReader.GetOrdinal("data")));
                         }
-
-
+                        dataReader.Close();
                     }
 
                     _sqlConnection.Dispose();
@@ -101,13 +92,13 @@ namespace PictoManagementServer
         /// <param name="dashboardImages">Imágenes que componen el dashboard</param>
         public void InsertDataIntoDashboards (string dashboardName, string dashboardImages)
         {
-            string query = "INSERT INTO dashboards (title, data) VALUES (@title, @|data)";
+            string query = "INSERT INTO Dashboards (Title, Images) VALUES (@title, @images)";
 
             using (_sqlConnection)
             using (SqlCommand command = new SqlCommand(query, _sqlConnection))
             {
                 command.Parameters.Add("title", SqlDbType.VarChar).Value = dashboardName;
-                command.Parameters.Add("data", SqlDbType.VarChar).Value = dashboardImages;
+                command.Parameters.Add("images", SqlDbType.VarChar).Value = dashboardImages;
 
                 try
                 {

@@ -51,7 +51,7 @@ namespace PictoManagementVocabulary
             _title = NewTitle;
             _path = NewPath;
 
-            if (stringBase64 != null)
+            if (stringBase64 != null) // De este modo se puede tener en un mismo constructor tanto el caso de codificar una imagen como el de decodificarla
             {
                 FromBase64(stringBase64, NewPath);
             }
