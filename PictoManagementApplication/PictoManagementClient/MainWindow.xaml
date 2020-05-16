@@ -7,6 +7,24 @@
         mc:Ignorable="d"
         Title="PictoManagement Application" Height="450" Width="800">
     <Grid>
-        
+        <Grid HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="772" Margin="10,0,0,0">
+            <Button Content="Inicio" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Height="42"/>
+            <ComboBox HorizontalAlignment="Left" Margin="125,0,0,0" VerticalAlignment="Top" Width="120" Height="42">
+                <ComboBoxItem Content="Desde cero"></ComboBoxItem>
+                <ComboBoxItem Content="A partir de uno existente"></ComboBoxItem>
+            </ComboBox>
+            <Button Content="Modificar Tablero" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Height="42" Margin="250,0,0,0"/>
+            
+            <TextBox HorizontalAlignment="Left" Height="42" Margin="437,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="200" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            <Button Content="Buscar" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Height="42" Margin="642,0,0,0"/>
+
+        </Grid>
+        <Button Content="Crear Tablero Desde Cero" HorizontalAlignment="Left" Margin="159,132,0,0" VerticalAlignment="Top" Width="170" Height="70"/>
+        <Button Content="Modificar Tablero" HorizontalAlignment="Left" Margin="386,132,0,0" VerticalAlignment="Top" Width="170" Height="70"/>
+        <Button HorizontalAlignment="Left" Margin="159,243,0,0" VerticalAlignment="Top" Width="170" Height="70">
+            <TextBlock TextAlignment="Center">Crear Tablero<LineBreak/>A Partir De Uno Existente</TextBlock>
+        </Button>
+        <Button Content="Mostrar Tableros Existentes" HorizontalAlignment="Left" Margin="386,243,0,0" VerticalAlignment="Top" Width="170" Height="70"/>
+
     </Grid>
 </Window>
