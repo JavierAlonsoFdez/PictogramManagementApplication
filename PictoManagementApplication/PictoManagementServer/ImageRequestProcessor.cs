@@ -24,7 +24,7 @@ namespace PictoManagementServer
 
             foreach (string img in imagesArray)
             {
-                string[] files = Directory.GetFiles("PathToFolderOfPictograms", img + "*.*"); // Cambiar el string al directorio real de los pictogramas
+                string[] files = Directory.GetFiles("C:\\Users\\Desktop Javier\\Desktop\\" + img + "*.*"); // Cambiar el string al directorio real de los pictogramas
                 foreach (string file in files)
                 {
                     _imageList.Add(new Image(img, file));

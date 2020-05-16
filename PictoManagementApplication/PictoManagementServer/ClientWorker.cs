@@ -42,7 +42,7 @@ namespace PictoManagementServer
         {
             switch (requestType)
             {
-                case "image":
+                case "get image":
                     ProcessImageRequest(bodyOfRequest, ref _networkStream);
                     break;
                 case "get dashboard":
