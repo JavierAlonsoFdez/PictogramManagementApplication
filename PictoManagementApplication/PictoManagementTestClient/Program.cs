@@ -1,10 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using PictoManagementVocabulary;
 
 namespace PictoManagementTestClient
 {
@@ -13,7 +8,7 @@ namespace PictoManagementTestClient
         static void Main(string[] args)
         {
             bool runClient = true;
-            string Address = "localhost";
+            string Address = "127.0.0.1";
             int port = 12000;
             TcpClient clientTest = new TcpClient(Address, port);
             NetworkStream netStream = clientTest.GetStream();

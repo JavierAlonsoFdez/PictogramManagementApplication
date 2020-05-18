@@ -1,0 +1,20 @@
+﻿<Window x:Class="PictoManagementClient.Window1"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PictoManagementClient"
+        mc:Ignorable="d"
+        Title="Crear Tablero Desde Cero" Height="450" Width="800">
+    <Grid>
+        <Label Content="Título" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
+        <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Pictogramas" HorizontalAlignment="Left" Margin="90,84,0,0" VerticalAlignment="Top" Width="60"/>
+        <TextBox HorizontalAlignment="Left" Height="26" Margin="155,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320"/>
+        <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,84,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+        <Canvas HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="480"/>
+        <CheckBox Content="Compartir" HorizontalAlignment="Left" Margin="90,332,0,0" VerticalAlignment="Top"/>
+        <Button Content="Crear" HorizontalAlignment="Left" Margin="90,363,0,0" VerticalAlignment="Top" Width="90"/>
+
+    </Grid>
+</Window>
