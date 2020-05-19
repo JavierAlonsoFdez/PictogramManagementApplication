@@ -4,6 +4,7 @@ using System.Text;
 using PictoManagementVocabulary;
 using System.Data.SqlClient;
 using System.Data;
+using System.IO;
 
 namespace PictoManagementServer
 {
@@ -35,7 +36,10 @@ namespace PictoManagementServer
             string images = "";
 
             for (int i = 1; i < requestSplitted.Length; i++)
-                images += requestSplitted[i] + ",";
+            {
+                if (File.Exists("PictogramsPath" + requestSplitted[i]))
+                    images += requestSplitted[i] + ",";
+            }
 
             requestForInsert[0] = requestSplitted[0];
             requestForInsert[1] = images;

@@ -9,10 +9,11 @@
     <Grid>
         <Label Content="Título" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
         <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Label Content="Pictogramas" HorizontalAlignment="Left" Margin="90,84,0,0" VerticalAlignment="Top" Width="60"/>
-        <TextBox HorizontalAlignment="Left" Height="26" Margin="155,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320"/>
-        <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,84,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
-        <Canvas HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="480"/>
+        <Label Content="Pictogramas" HorizontalAlignment="Left" Margin="90,84,0,0" VerticalAlignment="Top" Width="90"/>
+        <TextBox HorizontalAlignment="Left" Height="26" Margin="185,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="338"/>
+        <Button Content="Buscar" HorizontalAlignment="Left" Margin="528,84,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+        <Canvas HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="528" Background="AntiqueWhite"/>
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="528"/>
         <CheckBox Content="Compartir" HorizontalAlignment="Left" Margin="90,332,0,0" VerticalAlignment="Top"/>
         <Button Content="Crear" HorizontalAlignment="Left" Margin="90,363,0,0" VerticalAlignment="Top" Width="90"/>
 

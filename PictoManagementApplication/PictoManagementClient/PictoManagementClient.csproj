@@ -61,6 +61,9 @@
     <Compile Include="CreateNewDashboard.xaml.cs">
       <DependentUpon>CreateNewDashboard.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CreateDashboardFromExistent.xaml.cs">
+      <DependentUpon>CreateDashboardFromExistent.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -76,6 +79,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="CreateNewDashboard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CreateDashboardFromExistent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
