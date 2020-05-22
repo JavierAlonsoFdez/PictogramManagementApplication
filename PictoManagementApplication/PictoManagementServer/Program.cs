@@ -18,6 +18,7 @@ namespace PictoManagementServer
             log.LogMessage("Starting PictoManagementServer");
 
             TcpServer serverTcp = new TcpServer(12000);
+            serverTcp.Start();
         }
     }
 }

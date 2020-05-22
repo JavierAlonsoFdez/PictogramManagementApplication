@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -12,21 +13,32 @@ namespace PictoManagementServer
         private NetworkStream _networkStream;
         private TcpClient _tcpClient;
         public Thread _t;
+        private byte[] receiveBuffer;
+        private BinaryReader binReader;
+        private BinaryWriter binWriter;
 
         public ClientWorker(TcpClient tcpClient)
         {
             _tcpClient = tcpClient;
             _networkStream = tcpClient.GetStream();
-
+            binReader = new BinaryReader(_networkStream);
+            binWriter = new BinaryWriter(_networkStream);
             _t = new Thread(doWork);
+
+            _t.Start();
         }
 
         public void doWork()
         {
-            var rcvBuffer = new byte[_tcpClient.ReceiveBufferSize];
-            _networkStream.Read(rcvBuffer, 0, (int)_tcpClient.ReceiveBufferSize);
-            RequestProcessor requestProcessor = new RequestProcessor(rcvBuffer);
-
+            // Para escribir y leer, mejor usar Binary Writer y Binary Reader
+            // Así, se envía primero un entero con el número de bytes a leer y se leen esos bytes
+            using (binReader)
+            {
+                int bufferSize = binReader.ReadInt32();
+                receiveBuffer = new byte[bufferSize];
+                receiveBuffer = binReader.ReadBytes(bufferSize);
+            }
+            RequestProcessor requestProcessor = new RequestProcessor(receiveBuffer);
             CheckTypeOfRequestAndProcess(requestProcessor.GetTypeOfRequest(), requestProcessor.GetBodyOfRequest());
         }
 
@@ -43,10 +55,10 @@ namespace PictoManagementServer
             switch (requestType)
             {
                 case "get image":
-                    ProcessImageRequest(bodyOfRequest, ref _networkStream);
+                    ProcessImageRequest(bodyOfRequest, ref binWriter);
                     break;
                 case "get dashboard":
-                    ProcessGetDashboardRequest(bodyOfRequest, ref _networkStream);
+                    ProcessGetDashboardRequest(bodyOfRequest, ref binWriter);
                     break;
                 case "insert dashboard":
                     ProcessInsertDashboardRequest(bodyOfRequest);
@@ -61,13 +73,17 @@ namespace PictoManagementServer
         /// </summary>
         /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
         /// <param name="netStream">Referencia al stream para enviar datos.</param>
-        public void ProcessImageRequest(string bodyOfRequest, ref NetworkStream netStream)
+        public void ProcessImageRequest(string bodyOfRequest, ref BinaryWriter binWriter)
         {
             ImageRequestProcessor imageProcessor = new ImageRequestProcessor(bodyOfRequest);
             foreach (Image img in imageProcessor.GetImages())
             {
                 byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
-                netStream.Write(sndBuffer, 0, sndBuffer.Length);
+                using (binWriter)
+                {
+                    binWriter.Write(sndBuffer.Length);
+                    binWriter.Write(sndBuffer);
+                }
             }
         }
 
@@ -87,7 +103,7 @@ namespace PictoManagementServer
         /// </summary>
         /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
         /// <param name="netStream">Referencia al stream para enviar datos.</param>
-        public void ProcessGetDashboardRequest(string bodyOfRequest, ref NetworkStream netStream)
+        public void ProcessGetDashboardRequest(string bodyOfRequest, ref BinaryWriter binWriter)
         {
             DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
             List<string> dashboardList = dashboardProcessor.GetDataFromDashboard(bodyOfRequest);
@@ -98,7 +114,11 @@ namespace PictoManagementServer
                 foreach (Image img in imageProcessor.GetImages())
                 {
                     byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
-                    netStream.Write(sndBuffer, 0, sndBuffer.Length);
+                    using (binWriter)
+                    {
+                        binWriter.Write(sndBuffer.Length);
+                        binWriter.Write(sndBuffer);
+                    }
                 }
             }
         }

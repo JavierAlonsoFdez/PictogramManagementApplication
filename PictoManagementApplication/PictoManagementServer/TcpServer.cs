@@ -13,11 +13,12 @@ namespace PictoManagementServer
     class TcpServer
     {
         private List<ClientWorker> listClients;
+        private TcpListener tcpListener;
 
         /// <summary>
         /// Instancia del log para generar una traza
         /// </summary>
-        private LogSingleTon log = LogSingleTon.Instance;
+        private LogSingleTon log;
 
         /// <summary>
         /// Constructor de la clase, genera un tcpListener con el puerto indicado
@@ -26,12 +27,11 @@ namespace PictoManagementServer
         public TcpServer(int port)
         {
             listClients = null;
-
-            TcpListener tcpListener = new TcpListener(IPAddress.Any, port);
-            Start(tcpListener);
+            log = LogSingleTon.Instance;
+            tcpListener = new TcpListener(IPAddress.Any, port);
         }
 
-        public void Start(TcpListener tcpListener)
+        public void Start()
         {
             tcpListener.Start();
             log.LogMessage("Started TCP Server");

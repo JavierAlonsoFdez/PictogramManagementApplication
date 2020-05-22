@@ -35,6 +35,7 @@ namespace PictoManagementTestClient
         {
             try
             {
+                // Meter binarywritter, todo a un metodo y quitar el buffer
                 netStream.Write(sndBuffer, 0, sndBuffer.Length);
             }
             catch (Exception e)
