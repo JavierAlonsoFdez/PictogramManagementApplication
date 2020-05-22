@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using PictoManagementVocabulary;
 
@@ -7,17 +8,17 @@ namespace PictoManagementTestClient
     public class Receiver
     {
         TcpClient clientTest;
-        NetworkStream netStream;
+        BinaryReader binReader;
         public byte[] rcvBuffer;
         public BinaryCodec<Image> binCodImage = new BinaryCodec<Image>();
         public BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
 
-        public Receiver (TcpClient client, NetworkStream ns)
+        public Receiver (TcpClient client, BinaryReader br)
         {
             try
             {
                 clientTest = client;
-                netStream = ns;
+                binReader = br;
             }
             catch (Exception e)
             {
@@ -28,13 +29,21 @@ namespace PictoManagementTestClient
 
         public void ReceiveImage()
         {
-            netStream.Read(rcvBuffer, 0, clientTest.ReceiveBufferSize);
+            using (binReader)
+            {
+                int bufferSize = binReader.ReadInt32();
+                rcvBuffer = binReader.ReadBytes(bufferSize);
+            }
             Image imageReceived = binCodImage.Decode(rcvBuffer);
         }
 
         public void ReceiveDashboard()
         {
-            netStream.Read(rcvBuffer, 0, clientTest.ReceiveBufferSize);
+            using (binReader)
+            {
+                int bufferSize = binReader.ReadInt32();
+                rcvBuffer = binReader.ReadBytes(bufferSize);
+            }
             Dashboard dashboard = binCodDash.Decode(rcvBuffer);
         }
     }

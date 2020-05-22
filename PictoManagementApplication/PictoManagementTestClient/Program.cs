@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Net;
 using System.Net.Sockets;
 
 namespace PictoManagementTestClient
@@ -10,10 +12,13 @@ namespace PictoManagementTestClient
             bool runClient = true;
             string Address = "127.0.0.1";
             int port = 12000;
-            TcpClient clientTest = new TcpClient(Address, port);
+            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(Address), port);
+            TcpClient clientTest = new TcpClient(ipEndPoint);
             NetworkStream netStream = clientTest.GetStream();
-            Requestor requestor = new Requestor(clientTest, netStream);
-            Receiver receiver = new Receiver(clientTest, netStream);
+            BinaryReader binReader = new BinaryReader(netStream);
+            BinaryWriter binWriter = new BinaryWriter(netStream);
+            Requestor requestor = new Requestor(clientTest, binWriter);
+            Receiver receiver = new Receiver(clientTest, binReader);
 
             Console.WriteLine("--- Bienvenido al PictoManagementTestClient ---");
             
@@ -31,22 +36,19 @@ namespace PictoManagementTestClient
                 {
                     case "1":
                         Console.WriteLine("Ha seleccionado recibir una imagen de prueba.");
-                        requestor.PrepareRequest("Get image", "TestFoto");
-                        requestor.SendRequest();
+                        requestor.PrepareAndSendRequest("Get image", "TestFoto");
                         receiver.ReceiveImage();
                         break;
 
                     case "2":
                         Console.WriteLine("Ha seleccionado recibir un dashboard de prueba.");
-                        requestor.PrepareRequest("Get dashboard", "Test");
-                        requestor.SendRequest();
+                        requestor.PrepareAndSendRequest("Get dashboard", "Test");
                         receiver.ReceiveDashboard();
                         break;
 
                     case "3":
                         Console.WriteLine("Ha seleccionado enviar un dashboard de prueba.");
-                        requestor.PrepareRequest("Insert dashboard", "Test1,Test2");
-                        requestor.SendRequest();
+                        requestor.PrepareAndSendRequest("Insert dashboard", "Test1,Test2");
                         break;
 
                     default:

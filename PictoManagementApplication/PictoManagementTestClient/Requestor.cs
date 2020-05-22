@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using PictoManagementVocabulary;
 
@@ -7,16 +8,16 @@ namespace PictoManagementTestClient
     public class Requestor
     {
         public TcpClient clientTest;
-        public NetworkStream netStream;
+        public BinaryWriter binWriter;
         public BinaryCodec<Request> binaryCodecReq = new BinaryCodec<Request>();
         public byte[] sndBuffer;
 
-        public Requestor(TcpClient client, NetworkStream ns)
+        public Requestor(TcpClient client, BinaryWriter bw)
         {
             try
             {
                 clientTest = client;
-                netStream = ns;
+                binWriter = bw;
             }
             catch (Exception e)
             {
@@ -25,24 +26,16 @@ namespace PictoManagementTestClient
             }
         }
 
-        public void PrepareRequest(string Type, string Body)
+        public void PrepareAndSendRequest(string Type, string Body)
         {
             Request req = new Request(Type, Body);
             sndBuffer = binaryCodecReq.Encode(req);
-        }
-
-        public void SendRequest()
-        {
-            try
+            using (binWriter)
             {
-                // Meter binarywritter, todo a un metodo y quitar el buffer
-                netStream.Write(sndBuffer, 0, sndBuffer.Length);
+                binWriter.Write(sndBuffer.Length);
+                binWriter.Write(sndBuffer);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message + " at " + e.StackTrace);
-                throw e;
-            }
+                
         }
     }
 }
