@@ -5,26 +5,69 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PictoManagementClient"
         mc:Ignorable="d"
-        Title="PictoManagement Application" Height="450" Width="800">
+        Title="PictoManagement Application" Height="540.247" Width="800">
     <Grid>
-        <Grid HorizontalAlignment="Left" Height="42" VerticalAlignment="Top" Width="772" Margin="10,0,0,0">
-            <Button Content="Inicio" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Height="42"/>
-            <ComboBox HorizontalAlignment="Left" Margin="125,0,0,0" VerticalAlignment="Top" Width="120" Height="42">
-                <ComboBoxItem Content="Desde cero"></ComboBoxItem>
-                <ComboBoxItem Content="A partir de uno existente"></ComboBoxItem>
-            </ComboBox>
-            <Button Content="Modificar Tablero" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Height="42" Margin="250,0,0,0"/>
-            
-            <TextBox HorizontalAlignment="Left" Height="42" Margin="437,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="200" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-            <Button Content="Buscar" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Height="42" Margin="642,0,0,0"/>
+        <TabControl TabStripPlacement="Top">
+            <TabItem Header="Búsqueda">
+                <Grid Margin="30,20">
+                    <Label Content="Búsqueda" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
+                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Label Content="Resultados" HorizontalAlignment="Left" Margin="90,70,0,0" VerticalAlignment="Top" Width="480" HorizontalContentAlignment="Center"/>
+                    <Canvas HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480"/>
+                </Grid>
+            </TabItem>
 
-        </Grid>
-        <Button Content="Crear Tablero Desde Cero" HorizontalAlignment="Left" Margin="159,132,0,0" VerticalAlignment="Top" Width="170" Height="70"/>
-        <Button Content="Modificar Tablero" HorizontalAlignment="Left" Margin="386,132,0,0" VerticalAlignment="Top" Width="170" Height="70"/>
-        <Button HorizontalAlignment="Left" Margin="159,243,0,0" VerticalAlignment="Top" Width="170" Height="70">
-            <TextBlock TextAlignment="Center">Crear Tablero<LineBreak/>A Partir De Uno Existente</TextBlock>
-        </Button>
-        <Button Content="Mostrar Tableros Existentes" HorizontalAlignment="Left" Margin="386,243,0,0" VerticalAlignment="Top" Width="170" Height="70"/>
+            <TabItem Header="Creación de Tablero Desde Cero">
+                <Grid Margin="30,20">
+                    <Label Content="Título" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
+                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                    <Label Content="Pictogramas" HorizontalAlignment="Left" Margin="90,84,0,0" VerticalAlignment="Top" Width="90"/>
+                    <TextBox HorizontalAlignment="Left" Height="26" Margin="185,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="338"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="528,84,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Canvas HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="528" Background="AntiqueWhite"/>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="528"/>
+                    <CheckBox Content="Compartir" HorizontalAlignment="Left" Margin="90,332,0,0" VerticalAlignment="Top"/>
+                    <Button Content="Crear" HorizontalAlignment="Left" Margin="90,363,0,0" VerticalAlignment="Top" Width="90"/>
+                </Grid>
+            </TabItem>
 
+            <TabItem Header="Creación de Tablero a Partir de Existente">
+                <Grid Margin="30,20">
+                    <Label Content="Tablero" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
+                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Canvas HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480"/>
+                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Modificar Tablero">
+                <Grid Margin="30,20">
+                    <Label Content="Tablero" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
+                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Label Content="Imagen" HorizontalAlignment="Left" Margin="90,70,0,0" VerticalAlignment="Top" Width="60"/>
+                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,70,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Button Content="Buscar Imagen" HorizontalAlignment="Left" Margin="480,70,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Canvas HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480"/>
+                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,372,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,372,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Tableros Existentes">
+                <Grid Margin="30,20">
+                    <Label Content="Tus Tableros" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="480" HorizontalContentAlignment="Center"/>
+                    <Canvas HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480"/>
+                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
