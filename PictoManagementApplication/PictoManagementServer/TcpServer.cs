@@ -26,7 +26,7 @@ namespace PictoManagementServer
         /// <param name="port">Puerto donde va a escuchar el tcpListener</param>
         public TcpServer(int port)
         {
-            listClients = null;
+            listClients = new List<ClientWorker>();
             log = LogSingleTon.Instance;
             tcpListener = new TcpListener(IPAddress.Any, port);
         }
