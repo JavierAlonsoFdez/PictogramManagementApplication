@@ -13,7 +13,8 @@ namespace PictoManagementTestClient
             string Address = "127.0.0.1";
             int port = 12000;
             IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(Address), port);
-            TcpClient clientTest = new TcpClient(ipEndPoint);
+            TcpClient clientTest = new TcpClient();
+            clientTest.Connect(ipEndPoint);
             NetworkStream netStream = clientTest.GetStream();
             BinaryReader binReader = new BinaryReader(netStream);
             BinaryWriter binWriter = new BinaryWriter(netStream);

@@ -16,6 +16,8 @@
                     <Label Content="Resultados" HorizontalAlignment="Left" Margin="90,70,0,0" VerticalAlignment="Top" Width="480" HorizontalContentAlignment="Center"/>
                     <Canvas HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480"/>
+                    <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
+
                 </Grid>
             </TabItem>
 
@@ -30,6 +32,7 @@
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="528"/>
                     <CheckBox Content="Compartir" HorizontalAlignment="Left" Margin="90,332,0,0" VerticalAlignment="Top"/>
                     <Button Content="Crear" HorizontalAlignment="Left" Margin="90,363,0,0" VerticalAlignment="Top" Width="90"/>
+                    <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
 
@@ -42,6 +45,7 @@
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480"/>
                     <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
                     <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
 
@@ -57,6 +61,7 @@
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480"/>
                     <Button Content="Editar" HorizontalAlignment="Left" Margin="90,372,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
                     <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,372,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
 
@@ -66,6 +71,7 @@
                     <Canvas HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480"/>
                     <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
         </TabControl>
