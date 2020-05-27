@@ -22,6 +22,12 @@ namespace PictoManagementClient.Controller
 
         public BusinessLayer()
         {
+            // Traerme del fichero de configuración el Address y el port o pasarla como parametro
+            // Atributos de la clase
+        }
+
+        public void OpenConnection()
+        {
             string Address = "127.0.0.1"; // Fichero de configuración
             int port = 12000; // Fichero de configuración
             IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(Address), port);
@@ -40,11 +46,15 @@ namespace PictoManagementClient.Controller
         /// <param name="request">Petición a enviar al servidor</param>
         public void SendRequest(Request request)
         {
+            OpenConnection();
+
             BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
 
             byte[] sendingRequest = binCodReq.Encode(request);
             binWriter.Write(sendingRequest.Length);
             binWriter.Write(sendingRequest);
+
+            CloseConnection();
         }
 
         /// <summary>
@@ -53,11 +63,15 @@ namespace PictoManagementClient.Controller
         /// <param name="dashboard">Tablero a compartir con el resto de usuarios</param>
         public void SendDashboard(Dashboard dashboard)
         {
+            OpenConnection();
+
             BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
 
             byte[] sendingDashboard = binCodDash.Encode(dashboard);
             binWriter.Write(sendingDashboard.Length);
             binWriter.Write(sendingDashboard);
+
+            CloseConnection();
         }
 
         /// <summary>
@@ -66,7 +80,8 @@ namespace PictoManagementClient.Controller
         /// <returns>Retorna un array de imágenes ya decodificado</returns>
         public Image[] ReceiveImages()
         {
-            
+            OpenConnection();
+
             int NumberOfImages = binReader.ReadInt32();
             Image[] imagesReceived = new Image[NumberOfImages];
             BinaryCodec<Image> binCodImg = new BinaryCodec<Image>();
@@ -75,6 +90,7 @@ namespace PictoManagementClient.Controller
             {
                 imagesReceived[i] = binCodImg.Decode(binReader.ReadBytes(binReader.ReadInt32()));
             }
+            CloseConnection();
 
             return imagesReceived;
         }
@@ -85,11 +101,20 @@ namespace PictoManagementClient.Controller
         /// <returns>Retorna un dashboard ya decodificado</returns>
         public Dashboard ReceiveDashboard()
         {
+            OpenConnection();
+
             BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
 
             Dashboard dashboardReceived = binCodDash.Decode(binReader.ReadBytes(binReader.ReadInt32()));
 
+            CloseConnection();
+
             return dashboardReceived;
+        }
+
+        public void CloseConnection()
+        {
+            tcpClient.Dispose();
         }
     }
 }

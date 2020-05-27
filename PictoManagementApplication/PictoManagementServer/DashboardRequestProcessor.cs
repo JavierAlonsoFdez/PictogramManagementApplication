@@ -10,9 +10,9 @@ namespace PictoManagementServer
 {
     class DashboardRequestProcessor
     {
-        private string _sqlCnStr = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=Dashboards;Integrated Security=SSPI";
+        private string _sqlCnStr = "Data Source=localhost\\SQLEXPRESS;Database=DashboardsPMA;Integrated Security=SSPI";
         private SqlConnection _sqlConnection;
-        private LogSingleTon log = LogSingleTon.Instance;
+        private LogSingleTon log;
 
         /// <summary>
         /// Constructor de la clase, genera la conexión con la base de datos.
@@ -20,6 +20,7 @@ namespace PictoManagementServer
         public DashboardRequestProcessor()
         {
             _sqlConnection = new SqlConnection(_sqlCnStr);
+            log = LogSingleTon.Instance;
         }
 
         /// <summary>
@@ -37,12 +38,12 @@ namespace PictoManagementServer
 
             for (int i = 1; i < requestSplitted.Length; i++)
             {
-                if (File.Exists("PictogramsPath" + requestSplitted[i]))
+                if (File.Exists("C:\\Users\\Desktop Javier\\Desktop\\" + requestSplitted[i] + ".png"))
                     images += requestSplitted[i] + ",";
             }
 
             requestForInsert[0] = requestSplitted[0];
-            requestForInsert[1] = images;
+            requestForInsert[1] = images.Substring(images.Length-1);
 
             return requestForInsert;
         }

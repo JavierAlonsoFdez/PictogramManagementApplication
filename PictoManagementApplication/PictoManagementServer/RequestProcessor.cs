@@ -21,7 +21,6 @@ namespace PictoManagementServer
         {
             _binaryCodec = new BinaryCodec<Request>();
             DecodeMessage(message);
-            
         }
 
         /// <summary>

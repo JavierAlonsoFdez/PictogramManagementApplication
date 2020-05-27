@@ -35,7 +35,6 @@ namespace PictoManagementServer
             using (binReader)
             {
                 int bufferSize = binReader.ReadInt32();
-                receiveBuffer = new byte[bufferSize];
                 receiveBuffer = binReader.ReadBytes(bufferSize);
             }
             RequestProcessor requestProcessor = new RequestProcessor(receiveBuffer);

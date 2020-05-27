@@ -1,7 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
+using System.Threading;
+using PictoManagementVocabulary;
 
 namespace PictoManagementClientTest
 {
@@ -9,17 +8,11 @@ namespace PictoManagementClientTest
     {
         static void Main(string[] args)
         {
+            Thread.Sleep(2000);
             bool runClient = true;
             string Address = "127.0.0.1";
             int port = 12000;
-            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(Address), port);
-            TcpClient clientTest = new TcpClient();
-            clientTest.Connect(ipEndPoint);
-            NetworkStream netStream = clientTest.GetStream();
-            BinaryReader binReader = new BinaryReader(netStream);
-            BinaryWriter binWriter = new BinaryWriter(netStream);
-            Requestor requestor = new Requestor(clientTest, binWriter);
-            Receiver receiver = new Receiver(clientTest, binReader);
+            BusinessLayer businessLayer = new BusinessLayer(Address, port);
 
             Console.WriteLine("--- Bienvenido al PictoManagementTestClient ---");
 
@@ -37,19 +30,19 @@ namespace PictoManagementClientTest
                 {
                     case "1":
                         Console.WriteLine("Ha seleccionado recibir una imagen de prueba.");
-                        requestor.PrepareAndSendRequest("Get image", "TestFoto");
-                        receiver.ReceiveImage();
+                        string[] imagesRequested = new string[1];
+                        imagesRequested[0] = "TestFoto";
+                        Image[] imagesReceived = businessLayer.RequestImages(imagesRequested);
                         break;
 
                     case "2":
                         Console.WriteLine("Ha seleccionado recibir un dashboard de prueba.");
-                        requestor.PrepareAndSendRequest("Get dashboard", "Test");
-                        receiver.ReceiveDashboard();
+                        Dashboard dashboardReceived = businessLayer.GetDashboard("TestDashboard");
                         break;
 
                     case "3":
                         Console.WriteLine("Ha seleccionado enviar un dashboard de prueba.");
-                        requestor.PrepareAndSendRequest("Insert dashboard", "Test1,Test2");
+                        businessLayer.SendDashboard("TestDashboard,TestFoto");
                         break;
 
                     default:
