@@ -1,21 +1,104 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using Newtonsoft.Json;
+using PictoManagementVocabulary;
 
 namespace PictoManagementClient.DataAccessLayer
 {
     public class DataAccess
     {
-        // Acceso a datos, se accede a base de datos y ficheros
+        private string configPath;
+        private Dictionary<string, string> configDictionary;
+        private List<Dashboard> dashboards;
 
-        // Crear una base de datos en un fichero json en el que queden guardados los distintos componentes de los tableros
+        /// <summary>
+        /// Constructor de la clase, carga el fichero de configuración en un diccionario de tipo String - String
+        /// </summary>
+        public DataAccess()
+        {
+            configPath = @"..\..\Config\Config.xml";
+            LoadConfig();
+        }
 
-        // Acceso a ficheros en la carpeta en la que se guarden las distintas imágenes y tableros propios del usuario
+        /// <summary>
+        /// Permite acceder al atributo configDictionary
+        /// </summary>
+        public Dictionary<string, string> ConfigDictionary
+        {
+            get { return configDictionary; }
+        }
+        
+        /// <summary>
+        /// Carga la configuración del fichero de configuración al diccionario String - String de la clase
+        /// </summary>
+        public void LoadConfig()
+        {
+            configDictionary = new Dictionary<string, string>();
+            XmlDocument xmlConfig = new XmlDocument();
+            FileStream fs = new FileStream(configPath, FileMode.Open, FileAccess.Read);
+            xmlConfig.Load(fs);
+            XmlNodeList nodeList = xmlConfig.ChildNodes;
 
-        // En el fichero JSON el nombre del objeto será el nombre del tablero y contendrá un array de strings con el nombre de las imágenes
+            foreach (XElement node in nodeList)
+            {
+                configDictionary.Add(node.Name.LocalName, node.Value);
+            }
+        }
 
-        // Para leer de un JSon hace falta tener el Newtonsoft.Json.Linq
+        /// <summary>
+        /// Obtiene todas las imagenes que componen un determinado dashboard
+        /// </summary>
+        /// <param name="dashboardName">Nombre del dashboard del que se quieren obtener las imágenes</param>
+        /// <returns>Array de string con el título de cada imagen</returns>
+        public string[] GetImagesOfDashboardInDatabase(string dashboardName)
+        {
+            string[] imagesName;
+
+            foreach (Dashboard dashboard in dashboards)
+            {
+                if (dashboard.Title == dashboardName)
+                {
+                    imagesName = new string[dashboard.Images.Length];
+                    int i = 0;
+                    foreach (Image image in dashboard.Images)
+                    {
+                        imagesName[i] = image.Title;
+                        i++;
+                    }
+                    return imagesName;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Lee los dashboards guardados en el json que sirve como base de datos
+        /// </summary>
+        public void LoadDashboardDatabase()
+        {
+            using (StreamReader sr = new StreamReader("file.json"))
+            {
+                string json = sr.ReadToEnd();
+                dashboards = JsonConvert.DeserializeObject<List<Dashboard>>(json);
+            }
+        }
+
+        /// <summary>
+        /// Incluye un nuevo dashboard en la base de datos de dashboards
+        /// </summary>
+        /// <param name="newDashboard">Nuevo dashboard a incluir en la base de datos</param>
+        public void WriteDashboardToDatabase(Dashboard newDashboard)
+        {
+            dashboards.Add(newDashboard);
+            string json = JsonConvert.SerializeObject(dashboards.ToArray());
+            File.WriteAllText(@"file.json", json);
+        }
     }
 }

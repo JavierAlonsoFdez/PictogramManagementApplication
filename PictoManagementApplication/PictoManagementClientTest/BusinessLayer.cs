@@ -50,16 +50,13 @@ namespace PictoManagementClientTest
             {
                 Request request = new Request("Get image", image);
                 byte[] sndBuffer = binCodReq.Encode(request);
-                using (binReader)
-                using (binWriter)
-                {
-                    binWriter.Write(sndBuffer.Length);
-                    binWriter.Write(sndBuffer);
-                    
-                    int receiveBytes = binReader.ReadInt32();
-                    byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
-                    imagesReceived[position] = binCodImage.Decode(receivedBuffer);
-                }
+                
+                binWriter.Write(sndBuffer.Length);
+                binWriter.Write(sndBuffer);
+                
+                int receiveBytes = binReader.ReadInt32();
+                byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
+                imagesReceived[position] = binCodImage.Decode(receivedBuffer);
                 position++;
             }
             Dispose();

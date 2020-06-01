@@ -32,11 +32,9 @@ namespace PictoManagementServer
         {
             // Para escribir y leer, mejor usar Binary Writer y Binary Reader
             // Así, se envía primero un entero con el número de bytes a leer y se leen esos bytes
-            using (binReader)
-            {
-                int bufferSize = binReader.ReadInt32();
-                receiveBuffer = binReader.ReadBytes(bufferSize);
-            }
+            int bufferSize = binReader.ReadInt32();
+            receiveBuffer = binReader.ReadBytes(bufferSize);
+
             RequestProcessor requestProcessor = new RequestProcessor(receiveBuffer);
             CheckTypeOfRequestAndProcess(requestProcessor.GetTypeOfRequest(), requestProcessor.GetBodyOfRequest());
         }
@@ -78,11 +76,8 @@ namespace PictoManagementServer
             foreach (Image img in imageProcessor.GetImages())
             {
                 byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
-                using (binWriter)
-                {
-                    binWriter.Write(sndBuffer.Length);
-                    binWriter.Write(sndBuffer);
-                }
+                binWriter.Write(sndBuffer.Length);
+                binWriter.Write(sndBuffer);
             }
         }
 
@@ -113,13 +108,18 @@ namespace PictoManagementServer
                 foreach (Image img in imageProcessor.GetImages())
                 {
                     byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
-                    using (binWriter)
-                    {
-                        binWriter.Write(sndBuffer.Length);
-                        binWriter.Write(sndBuffer);
-                    }
+                    
+                    binWriter.Write(sndBuffer.Length);
+                    binWriter.Write(sndBuffer);
                 }
             }
+        }
+
+        ~ClientWorker()
+        {
+            binReader.Close();
+            binWriter.Close();
+            _tcpClient.Close();
         }
     }
 }

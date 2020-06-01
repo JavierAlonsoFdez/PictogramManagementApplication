@@ -19,17 +19,24 @@ namespace PictoManagementClient.Controller
         NetworkStream netStream;
         BinaryReader binReader;
         BinaryWriter binWriter;
+        string Address;
+        int port;
 
-        public BusinessLayer()
+        /// <summary>
+        /// Constructor de la clase, asigna a Address y Port sus valores del fichero de configuración.
+        /// </summary>
+        /// <param name="ConfigDictionary">Valores del fichero de configuración en un diccionario</param>
+        public BusinessLayer(Dictionary<string, string> ConfigDictionary)
         {
-            // Traerme del fichero de configuración el Address y el port o pasarla como parametro
-            // Atributos de la clase
+            Address = ConfigDictionary["address"];
+            port = Int32.Parse(ConfigDictionary["port"]);
         }
 
+        /// <summary>
+        /// Abre una conexión con el servidor en la dirección y puerto indicados a través de la configuración
+        /// </summary>
         public void OpenConnection()
         {
-            string Address = "127.0.0.1"; // Fichero de configuración
-            int port = 12000; // Fichero de configuración
             IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(Address), port);
 
             tcpClient = new TcpClient();
@@ -88,7 +95,8 @@ namespace PictoManagementClient.Controller
 
             for (int i = 0; i<NumberOfImages;i++)
             {
-                imagesReceived[i] = binCodImg.Decode(binReader.ReadBytes(binReader.ReadInt32()));
+                int imageSize = binReader.ReadInt32();
+                imagesReceived[i] = binCodImg.Decode(binReader.ReadBytes(imageSize));
             }
             CloseConnection();
 
@@ -105,13 +113,17 @@ namespace PictoManagementClient.Controller
 
             BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
 
-            Dashboard dashboardReceived = binCodDash.Decode(binReader.ReadBytes(binReader.ReadInt32()));
+            int dashboardSize = binReader.ReadInt32();
+            Dashboard dashboardReceived = binCodDash.Decode(binReader.ReadBytes(dashboardSize));
 
             CloseConnection();
 
             return dashboardReceived;
         }
 
+        /// <summary>
+        /// Cierra la conexión con el servidor
+        /// </summary>
         public void CloseConnection()
         {
             tcpClient.Dispose();
