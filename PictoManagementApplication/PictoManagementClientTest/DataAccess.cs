@@ -3,6 +3,7 @@ using PictoManagementVocabulary;
 using System.Xml;
 using System.IO;
 using Newtonsoft.Json;
+using System;
 
 namespace PictoManagementClientTest
 {
@@ -18,7 +19,9 @@ namespace PictoManagementClientTest
         public DataAccess()
         {
             configPath = @"D:\Documentos\JAVIER\TFG\Repositorio\PictogramManagementApplication\PictoManagementApplication\PictoManagementClientTest\Config\Config.xml"; // Necesito trabajar los path relativos
+            dashboards = new List<Dashboard>();
             LoadConfig();
+            LoadDashboardDatabase();
         }
 
         /// <summary>
@@ -80,10 +83,15 @@ namespace PictoManagementClientTest
         /// </summary>
         public void LoadDashboardDatabase()
         {
-            using (StreamReader sr = new StreamReader("file.json"))
+            using (StreamReader sr = new StreamReader(ConfigDictionary["Dashboards"]))
             {
                 string json = sr.ReadToEnd();
                 dashboards = JsonConvert.DeserializeObject<List<Dashboard>>(json);
+            }
+            // Estp es para evitar que al leer un fichero vacío deje de ser una instancia de un objeto
+            if (dashboards == null)
+            {
+                dashboards = new List<Dashboard>();
             }
         }
 
@@ -91,11 +99,33 @@ namespace PictoManagementClientTest
         /// Incluye un nuevo dashboard en la base de datos de dashboards
         /// </summary>
         /// <param name="newDashboard">Nuevo dashboard a incluir en la base de datos</param>
-        public void WriteDashboardToDatabase(Dashboard newDashboard)
+        public void WriteDashboardToDatabase()
         {
-            dashboards.Add(newDashboard);
             string json = JsonConvert.SerializeObject(dashboards.ToArray());
-            File.WriteAllText(@"file.json", json);
+            File.WriteAllText(ConfigDictionary["Dashboards"], json);
+        }
+
+        public void IncludeDashboardInList(Dashboard newDashboard)
+        {
+            dashboards.Add(ChangePathsInImages(newDashboard));
+        }
+
+        public Dashboard ChangePathsInImages(Dashboard dashboard)
+        {
+            List<Image> newImagesList = new List<Image>();
+            foreach (Image img in dashboard.Images)
+            {
+                Image newImage = new Image(img.Title, ConfigDictionary["Images"] + img.Title + ".png");
+                newImagesList.Add(newImage);
+            }
+            return new Dashboard(dashboard.Title, newImagesList.ToArray());
+        }
+
+        public void SaveNewImage(string newTitle, string FileBase64)
+        {
+            byte[] bytes = Convert.FromBase64String(FileBase64);
+            string destinationPath = ConfigDictionary["Images"] + newTitle + ".png";
+            File.WriteAllBytes(destinationPath, bytes);
         }
     }
 }

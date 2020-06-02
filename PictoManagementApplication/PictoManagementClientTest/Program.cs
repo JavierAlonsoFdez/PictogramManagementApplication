@@ -40,11 +40,20 @@ namespace PictoManagementClientTest
                         string[] imagesRequested = new string[1];
                         imagesRequested[0] = "TestFoto";
                         Image[] imagesReceived = businessLayer.RequestImages(imagesRequested);
+                        foreach (Image img in imagesReceived)
+                        {
+                            dataAccess.SaveNewImage(img.Title, img.FileBase64);
+                        }
                         break;
 
                     case "2":
                         Console.WriteLine("Ha seleccionado recibir un dashboard de prueba.");
-                        List<Dashboard> dashboardReceived = businessLayer.GetDashboard("TestDashboard");
+                        List<Dashboard> dashboardsReceived = businessLayer.GetDashboard("TestDashboard");
+                        foreach (Dashboard dashboard in dashboardsReceived)
+                        {
+                            dataAccess.IncludeDashboardInList(dashboard);
+                        }
+                        dataAccess.WriteDashboardToDatabase();
                         break;
 
                     case "3":
