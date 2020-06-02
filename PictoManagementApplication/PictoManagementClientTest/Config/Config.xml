@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Config>
+  <Address>127.0.0.1</Address>
+  <Port>12000</Port>
+  <Dashboards>C:\Users\Desktop Javier\Desktop\Client\Dashboards.json</Dashboards>
+  <Images>C:\Users\Desktop Javier\Desktop\Client\</Images>
+</Config>

@@ -109,5 +109,8 @@
   <ItemGroup>
     <Resource Include="Image\arasaac.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Config\Config.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
