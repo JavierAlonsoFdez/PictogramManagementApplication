@@ -78,7 +78,7 @@ namespace PictoManagementClientTest
             Dispose();
         }
 
-        public Dashboard GetDashboard(string dashName)
+        public List<Dashboard> GetDashboard(string dashName)
         {
             Connect();
             Dashboard newDashboard;
@@ -87,21 +87,25 @@ namespace PictoManagementClientTest
             BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
             Request request = new Request("Get dashboard", dashName);
             byte[] sndBuffer = binCodReq.Encode(request);
-            using (binWriter)
-            using (binReader)
-            {
-                binWriter.Write(sndBuffer.Length);
-                binWriter.Write(sndBuffer);
+            
+            binWriter.Write(sndBuffer.Length);
+            binWriter.Write(sndBuffer);
 
-                int receiveBytes = binReader.ReadInt32();
+            int receivingDashboards = binReader.ReadInt32();
+            int receiveBytes;
+            List<Dashboard> dashboardList = new List<Dashboard>();
+
+            for (int i = 0; i<receivingDashboards;i++)
+            {
+                receiveBytes = binReader.ReadInt32();
                 byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
                 newDashboard = binCodDash.Decode(receivedBuffer);
+                dashboardList.Add(newDashboard);
             }
-
 
             Dispose();
 
-            return newDashboard;
+            return dashboardList;
         }
     }
 }

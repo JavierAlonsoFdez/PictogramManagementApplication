@@ -100,18 +100,16 @@ namespace PictoManagementServer
         public void ProcessGetDashboardRequest(string bodyOfRequest, ref BinaryWriter binWriter)
         {
             DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
-            List<string> dashboardList = dashboardProcessor.GetDataFromDashboard(bodyOfRequest);
+            List<Dashboard> dashboardList = dashboardProcessor.GetDataFromDashboard(bodyOfRequest);
+            BinaryCodec<Dashboard> dashBinCod = new BinaryCodec<Dashboard>();
 
-            foreach (string dashboardImages in dashboardList)
+            binWriter.Write(dashboardList.Count);
+
+            foreach (Dashboard dashboardToSend in dashboardList)
             {
-                ImageRequestProcessor imageProcessor = new ImageRequestProcessor(dashboardImages);
-                foreach (Image img in imageProcessor.GetImages())
-                {
-                    byte[] sndBuffer = imageProcessor.CodeImageForSending(img);
-                    
-                    binWriter.Write(sndBuffer.Length);
-                    binWriter.Write(sndBuffer);
-                }
+                byte[] sndBuffer = dashBinCod.Encode(dashboardToSend);
+                binWriter.Write(sndBuffer.Length);
+                binWriter.Write(sndBuffer);
             }
         }
 

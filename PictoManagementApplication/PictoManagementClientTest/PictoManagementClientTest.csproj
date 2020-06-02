@@ -9,4 +9,10 @@
     <ProjectReference Include="..\PictoManagementVocabulary\PictoManagementVocabulary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Config\Config.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

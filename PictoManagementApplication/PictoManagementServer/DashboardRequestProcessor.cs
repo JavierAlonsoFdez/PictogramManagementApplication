@@ -38,12 +38,12 @@ namespace PictoManagementServer
 
             for (int i = 1; i < requestSplitted.Length; i++)
             {
-                if (File.Exists("C:\\Users\\Desktop Javier\\Desktop\\" + requestSplitted[i] + ".png"))
+                if (File.Exists("C:\\Users\\Desktop Javier\\Desktop\\Server\\" + requestSplitted[i] + ".png"))
                     images += requestSplitted[i] + ",";
             }
 
             requestForInsert[0] = requestSplitted[0];
-            requestForInsert[1] = images.Substring(images.Length-1);
+            requestForInsert[1] = images.Substring(0,images.Length-1);
 
             return requestForInsert;
         }
@@ -53,10 +53,10 @@ namespace PictoManagementServer
         /// </summary>
         /// <param name="dashboardName">Nombre del dashboard que se solicita</param>
         /// <returns>Devuelve una lista de strings que son todos los dashboard que coincidan con el nombre recibido</returns>
-        public List<string> GetDataFromDashboard(string dashboardName)
+        public List<Dashboard> GetDataFromDashboard(string dashboardName)
         {
-            string query = "SELECT Images FROM Dashboards WHERE title LIKE @title";
-            List<string> dashboards = new List<string>();
+            string query = "SELECT * FROM Dashboards WHERE title LIKE @title";
+            List<Dashboard> dashboards = new List<Dashboard>();
 
             using (_sqlConnection)
             using (SqlCommand command = new SqlCommand(query, _sqlConnection))
@@ -71,7 +71,25 @@ namespace PictoManagementServer
                     {
                         while (dataReader.Read())
                         {
-                            dashboards.Add(dataReader.GetString(dataReader.GetOrdinal("data")));
+                            // Aqui hay un error, hay que ir formando el dashboard con todas sus partes
+                            // Primero el título, segundo los nombres de las imágenes con las que formaremos los path y finalmente el dashboard
+                            int columnIndex = dataReader.GetOrdinal("Title");
+                            string newDashboardName = dataReader.GetString(columnIndex);
+                            columnIndex = dataReader.GetOrdinal("Images");
+                            string imagesNames = dataReader.GetString(columnIndex);
+
+                            string[] images = imagesNames.Split(",");
+                            List<Image> imagesList = new List<Image>();
+
+                            foreach (string img in images)
+                            {
+                                string imgPath = "C:\\Users\\Desktop Javier\\Desktop\\Server\\" + img + ".png";
+                                if (File.Exists(imgPath))
+                                {
+                                    imagesList.Add(new Image(img, imgPath));
+                                }
+                            }
+                            dashboards.Add(new Dashboard(newDashboardName, imagesList.ToArray()));
                         }
                         dataReader.Close();
                     }

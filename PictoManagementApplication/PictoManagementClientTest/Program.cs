@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using PictoManagementVocabulary;
 
@@ -10,8 +11,14 @@ namespace PictoManagementClientTest
         {
             Thread.Sleep(2000);
             bool runClient = true;
-            string Address = "127.0.0.1";
-            int port = 12000;
+            DataAccess dataAccess = new DataAccess();
+            Dictionary<string, string> configDictionary = dataAccess.ConfigDictionary;
+
+            // string Address = "127.0.0.1";
+            string Address = configDictionary["Address"];
+            //int port = 12000;
+            int port = Int32.Parse(configDictionary["Port"]);
+
             BusinessLayer businessLayer = new BusinessLayer(Address, port);
 
             Console.WriteLine("--- Bienvenido al PictoManagementTestClient ---");
@@ -37,7 +44,7 @@ namespace PictoManagementClientTest
 
                     case "2":
                         Console.WriteLine("Ha seleccionado recibir un dashboard de prueba.");
-                        Dashboard dashboardReceived = businessLayer.GetDashboard("TestDashboard");
+                        List<Dashboard> dashboardReceived = businessLayer.GetDashboard("TestDashboard");
                         break;
 
                     case "3":
