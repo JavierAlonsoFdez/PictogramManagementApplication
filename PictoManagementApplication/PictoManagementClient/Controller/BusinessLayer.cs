@@ -15,118 +15,126 @@ namespace PictoManagementClient.Controller
     /// </summary>
     public class BusinessLayer
     {
-        TcpClient tcpClient;
-        NetworkStream netStream;
-        BinaryReader binReader;
-        BinaryWriter binWriter;
-        string Address;
-        int port;
+        private IPEndPoint ipEndPoint;
+        private TcpClient tcpClient;
+        private BinaryReader binReader;
+        private BinaryWriter binWriter;
 
         /// <summary>
-        /// Constructor de la clase, asigna a Address y Port sus valores del fichero de configuración.
+        /// Constructor de la clase, genera un ipEndPoint hacia el servidor
         /// </summary>
-        /// <param name="ConfigDictionary">Valores del fichero de configuración en un diccionario</param>
-        public BusinessLayer(Dictionary<string, string> ConfigDictionary)
+        /// <param name="newAddress">Dirección IP en la que se encuentra alojado el servidor.</param>
+        /// <param name="newPort">Puerto en el que escucha el servidor.</param>
+        public BusinessLayer(string newAddress, int newPort)
         {
-            Address = ConfigDictionary["address"];
-            port = Int32.Parse(ConfigDictionary["port"]);
+            ipEndPoint = new IPEndPoint(IPAddress.Parse(newAddress), newPort);
         }
 
         /// <summary>
-        /// Abre una conexión con el servidor en la dirección y puerto indicados a través de la configuración
+        /// Conecta el servidor y el cliente, asigna el cliente, el stream de datos, un reader y un writer
         /// </summary>
-        public void OpenConnection()
+        public void Connect()
         {
-            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(Address), port);
-
             tcpClient = new TcpClient();
             tcpClient.Connect(ipEndPoint);
-            netStream = tcpClient.GetStream();
+            NetworkStream netStream = tcpClient.GetStream();
 
             binReader = new BinaryReader(netStream);
             binWriter = new BinaryWriter(netStream);
         }
 
         /// <summary>
-        /// Envía una request al servidor para realizar alguna petición de las existentes
+        /// Cierra la conexión entre el cliente y el servidor
         /// </summary>
-        /// <param name="request">Petición a enviar al servidor</param>
-        public void SendRequest(Request request)
+        public void Dispose()
         {
-            OpenConnection();
+            tcpClient.Close();
+            tcpClient.Dispose();
+        }
 
+        /// <summary>
+        /// Solicita una o varias imágenes
+        /// </summary>
+        /// <param name="imagesRequested">Array con las imágenes solicitadas al servidor</param>
+        /// <returns>Array con las imágenes que retorna el servidor</returns>
+        public Image[] RequestImages(string[] imagesRequested)
+        {
+            Connect();
+
+            BinaryCodec<Image> binCodImage = new BinaryCodec<Image>();
             BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
+            Image[] imagesReceived = new Image[imagesRequested.Length];
+            int position = 0;
 
-            byte[] sendingRequest = binCodReq.Encode(request);
-            binWriter.Write(sendingRequest.Length);
-            binWriter.Write(sendingRequest);
-
-            CloseConnection();
-        }
-
-        /// <summary>
-        /// Envía un dashboard, este método se usa a la hora de crear tableros, para compartirlos
-        /// </summary>
-        /// <param name="dashboard">Tablero a compartir con el resto de usuarios</param>
-        public void SendDashboard(Dashboard dashboard)
-        {
-            OpenConnection();
-
-            BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
-
-            byte[] sendingDashboard = binCodDash.Encode(dashboard);
-            binWriter.Write(sendingDashboard.Length);
-            binWriter.Write(sendingDashboard);
-
-            CloseConnection();
-        }
-
-        /// <summary>
-        /// Recibe un array de imágenes
-        /// </summary>
-        /// <returns>Retorna un array de imágenes ya decodificado</returns>
-        public Image[] ReceiveImages()
-        {
-            OpenConnection();
-
-            int NumberOfImages = binReader.ReadInt32();
-            Image[] imagesReceived = new Image[NumberOfImages];
-            BinaryCodec<Image> binCodImg = new BinaryCodec<Image>();
-
-            for (int i = 0; i<NumberOfImages;i++)
+            foreach (string image in imagesRequested)
             {
-                int imageSize = binReader.ReadInt32();
-                imagesReceived[i] = binCodImg.Decode(binReader.ReadBytes(imageSize));
-            }
-            CloseConnection();
+                Request request = new Request("Get image", image);
+                byte[] sndBuffer = binCodReq.Encode(request);
 
+                binWriter.Write(sndBuffer.Length);
+                binWriter.Write(sndBuffer);
+
+                int receiveBytes = binReader.ReadInt32();
+                byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
+                imagesReceived[position] = binCodImage.Decode(receivedBuffer);
+                position++;
+            }
+            Dispose();
             return imagesReceived;
         }
 
         /// <summary>
-        /// Recibe un dashboard
+        /// Envía una petición para enviar un tablero y cuando el servidor está preparado para recibirlo, lo envía
         /// </summary>
-        /// <returns>Retorna un dashboard ya decodificado</returns>
-        public Dashboard ReceiveDashboard()
+        /// <param name="dashContent">Contenido del tablero en formato string</param>
+        public void SendDashboard(string dashContent)
         {
-            OpenConnection();
+            Connect();
+            BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
+            Request request = new Request("Insert dashboard", dashContent);
+            byte[] sndBuffer = binCodReq.Encode(request);
+            using (binWriter)
+            {
+                binWriter.Write(sndBuffer.Length);
+                binWriter.Write(sndBuffer);
+            }
 
-            BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
-
-            int dashboardSize = binReader.ReadInt32();
-            Dashboard dashboardReceived = binCodDash.Decode(binReader.ReadBytes(dashboardSize));
-
-            CloseConnection();
-
-            return dashboardReceived;
+            Dispose();
         }
 
         /// <summary>
-        /// Cierra la conexión con el servidor
+        /// Solicita un dashboard y retorna una lista con todos los tableros cuyo título coincida con ese nombre
         /// </summary>
-        public void CloseConnection()
+        /// <param name="dashName">Nombre el dashboard solicitado</param>
+        /// <returns>Lista de tableros cuyo título coincida con el indicado</returns>
+        public List<Dashboard> GetDashboard(string dashName)
         {
-            tcpClient.Dispose();
+            Connect();
+            Dashboard newDashboard;
+
+            BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
+            BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
+            Request request = new Request("Get dashboard", dashName);
+            byte[] sndBuffer = binCodReq.Encode(request);
+
+            binWriter.Write(sndBuffer.Length);
+            binWriter.Write(sndBuffer);
+
+            int receivingDashboards = binReader.ReadInt32();
+            int receiveBytes;
+            List<Dashboard> dashboardList = new List<Dashboard>();
+
+            for (int i = 0; i < receivingDashboards; i++)
+            {
+                receiveBytes = binReader.ReadInt32();
+                byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
+                newDashboard = binCodDash.Decode(receivedBuffer);
+                dashboardList.Add(newDashboard);
+            }
+
+            Dispose();
+
+            return dashboardList;
         }
     }
 }
