@@ -119,6 +119,18 @@ namespace PictoManagementClient.DataAccessLayer
         }
 
         /// <summary>
+        /// Incluye múltiples tablero en la lista de tableros previamente cargada
+        /// </summary>
+        /// <param name="newDashboardList">Lista de tableros a incluir en la lista existente</param>
+        public void IncludeMultipleDashboardInList(List<Dashboard> newDashboardList)
+        {
+            foreach (Dashboard newDashboard in newDashboardList)
+            {
+                IncludeDashboardInList(newDashboard);
+            }
+        }
+
+        /// <summary>
         /// Cambia la ruta de acceso a las imágenes y la sustituye por la que tienen en el cliente
         /// </summary>
         /// <param name="dashboard">Tablero cuyas imágenes van a ser redirigidas</param>
@@ -144,6 +156,27 @@ namespace PictoManagementClient.DataAccessLayer
             byte[] bytes = Convert.FromBase64String(FileBase64);
             string destinationPath = ConfigDictionary["Images"] + newTitle + ".png";
             File.WriteAllBytes(destinationPath, bytes);
+        }
+
+        public System.Drawing.Image GetImageFromFolder(string newTitle)
+        {
+            string folderPath = ConfigDictionary["Images"] + newTitle + ".png";
+            if (Directory.Exists(folderPath))
+            {
+                return System.Drawing.Image.FromFile(folderPath);
+            }
+
+            return null;
+        }
+
+        public Dashboard GetDashboardByName(string dashboardName)
+        {
+            foreach (Dashboard dashboard in dashboards)
+            {
+                if (dashboard.Title == dashboardName)
+                    return dashboard;
+            }
+            return null;
         }
     }
 }

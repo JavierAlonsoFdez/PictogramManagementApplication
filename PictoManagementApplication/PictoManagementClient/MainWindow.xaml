@@ -10,9 +10,10 @@
         <TabControl TabStripPlacement="Top">
             <TabItem Header="Búsqueda">
                 <Grid Margin="30,20">
-                    <Label Content="Búsqueda" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
-                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
-                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Label Content="Búsqueda" HorizontalAlignment="Left" Margin="90,21,0,0" VerticalAlignment="Top" Width="69"/>
+                    <TextBox Name="MainSearchbox" HorizontalAlignment="Left" Height="26" Margin="164,21,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="311"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,21,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="MainSearch_Click" RenderTransformOrigin="0.395,-0.169"/>
+                    <CheckBox x:Name="ImagesOrDashboards" Content="Tableros" Margin="90,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                     <Label Content="Resultados" HorizontalAlignment="Left" Margin="90,70,0,0" VerticalAlignment="Top" Width="480" HorizontalContentAlignment="Center"/>
                     <Canvas HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480"/>
@@ -24,14 +25,14 @@
             <TabItem Header="Creación de Tablero Desde Cero">
                 <Grid Margin="30,20">
                     <Label Content="Título" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
-                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                    <TextBox Name="NewDashboardTitle" HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                     <Label Content="Pictogramas" HorizontalAlignment="Left" Margin="90,84,0,0" VerticalAlignment="Top" Width="90"/>
-                    <TextBox HorizontalAlignment="Left" Height="26" Margin="185,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="338"/>
-                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="528,84,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <TextBox Name="ImagesSearchbox" HorizontalAlignment="Left" Height="26" Margin="185,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="338"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="528,84,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="NewImagesDashboard_Click"/>
                     <Canvas HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="528" Background="AntiqueWhite"/>
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="200" Margin="90,127,0,0" VerticalAlignment="Top" Width="528"/>
-                    <CheckBox Content="Compartir" HorizontalAlignment="Left" Margin="90,332,0,0" VerticalAlignment="Top"/>
-                    <Button Content="Crear" HorizontalAlignment="Left" Margin="90,363,0,0" VerticalAlignment="Top" Width="90"/>
+                    <CheckBox Name="ShareNewDashboard" Content="Compartir" HorizontalAlignment="Left" Margin="90,332,0,0" VerticalAlignment="Top"/>
+                    <Button Content="Crear" HorizontalAlignment="Left" Margin="90,363,0,0" VerticalAlignment="Top" Width="90" Click="CreateNewDashboard_Click"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
@@ -39,12 +40,12 @@
             <TabItem Header="Creación de Tablero a Partir de Existente">
                 <Grid Margin="30,20">
                     <Label Content="Tablero" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
-                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
-                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <TextBox Name="DashboardSearchbox" HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SearchExistingDashboard_Click"/>
                     <Canvas HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480"/>
-                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
-                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="EditSelectedDashboard_Click"/>
+                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,353,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SaveSelectedDashboard_Click"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
@@ -52,15 +53,15 @@
             <TabItem Header="Modificar Tablero">
                 <Grid Margin="30,20">
                     <Label Content="Tablero" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
-                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
-                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <TextBox Name="ModifyingDashboardSearchbox" HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="MyDashboardsSearch_Click"/>
                     <Label Content="Imagen" HorizontalAlignment="Left" Margin="90,70,0,0" VerticalAlignment="Top" Width="60"/>
-                    <TextBox HorizontalAlignment="Left" Height="26" Margin="155,70,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
-                    <Button Content="Buscar Imagen" HorizontalAlignment="Left" Margin="480,70,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <TextBox Name="NewImageModifySearchbox" HorizontalAlignment="Left" Height="26" Margin="155,70,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Button Content="Buscar Imagen" HorizontalAlignment="Left" Margin="480,70,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SearchImagesModifying_Click"/>
                     <Canvas HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,101,0,0" VerticalAlignment="Top" Width="480"/>
-                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,372,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
-                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,372,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,372,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="ModifyMyDashboard_Click"/>
+                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,372,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SaveModifiedDashboard_Click"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
@@ -70,7 +71,7 @@
                     <Label Content="Tus Tableros" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="480" HorizontalContentAlignment="Center"/>
                     <Canvas HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480" Background="AntiqueWhite"/>
                     <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="266" Margin="90,82,0,0" VerticalAlignment="Top" Width="480"/>
-                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26"/>
+                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="EditMyDashboard_Click"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
