@@ -109,11 +109,20 @@ namespace PictoManagementClient.DataAccessLayer
             File.WriteAllText(ConfigDictionary["Dashboards"], json);
         }
 
+        /// <summary>
+        /// Incluye un tablero en la lista de tableros previamente cargada
+        /// </summary>
+        /// <param name="newDashboard">Tablero a incluir en la lista</param>
         public void IncludeDashboardInList(Dashboard newDashboard)
         {
             dashboards.Add(ChangePathsInImages(newDashboard));
         }
 
+        /// <summary>
+        /// Cambia la ruta de acceso a las imágenes y la sustituye por la que tienen en el cliente
+        /// </summary>
+        /// <param name="dashboard">Tablero cuyas imágenes van a ser redirigidas</param>
+        /// <returns>Retorna el mismo tablero pero con las rutas de acceso cambiadas</returns>
         public Dashboard ChangePathsInImages(Dashboard dashboard)
         {
             List<Image> newImagesList = new List<Image>();
@@ -125,6 +134,11 @@ namespace PictoManagementClient.DataAccessLayer
             return new Dashboard(dashboard.Title, newImagesList.ToArray());
         }
 
+        /// <summary>
+        /// Guarda una imagen en la ruta seleccionada
+        /// </summary>
+        /// <param name="newTitle">Título con el que se guardará la imagen</param>
+        /// <param name="FileBase64">Codificación del archivo en base64</param>
         public void SaveNewImage(string newTitle, string FileBase64)
         {
             byte[] bytes = Convert.FromBase64String(FileBase64);
