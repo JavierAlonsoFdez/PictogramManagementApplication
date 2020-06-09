@@ -3,5 +3,7 @@
   <Address>127.0.0.1</Address>
   <Port>12000</Port>
   <Dashboards>C:\Users\Desktop Javier\Desktop\Client\Dashboards.json</Dashboards>
+  <DashboardsFolder>C:\Users\Desktop Javier\Desktop\Client\Dashboards\</DashboardsFolder>
   <Images>C:\Users\Desktop Javier\Desktop\Client\</Images>
+  <Temp>C:\Users\Desktop Javier\Desktop\Client\Temp\</Temp>
 </Config>

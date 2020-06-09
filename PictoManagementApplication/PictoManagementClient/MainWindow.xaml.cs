@@ -29,49 +29,96 @@ namespace PictoManagementClient
             dataAccess = new DataAccessLayer.DataAccess();
         }
 
+        private List<ImageItem> SearchForImagesInServer(Controller.BusinessLayer businessLayer, string[] images)
+        {
+            List<ImageItem> imagesToShow = new List<ImageItem>();
+
+            PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(requestImages);
+            foreach (PictoManagementVocabulary.Image img in images)
+            {
+                dataAccess.SaveNewImage(img.Title, img.FileBase64);
+                System.Drawing.Image givenImage = dataAccess.GetImageFromFolder(img.Title);
+                imagesToShow.Add(new ImageItem(img.Title, givenImage, false));
+            }
+
+            return imagesToShow;
+        }
+
+        private List<ImageItem> SearchForImagesLocally(string[] requestedImages)
+        {
+            List<ImageItem> imagesToShow = new List<ImageItem>();
+            foreach (string img in requestImages)
+            {
+                System.Drawing.Image localImage = dataAccess.GetImageFromFolder(img);
+                if (localImage != null)
+                    imagesToShow.Add(new ImageItem(img, localImage, false));
+            }
+
+            return imagesToShow;
+        }
+
+        private List<ImageItem> SearchForDashboardInServer(Controller.BusinessLayer businessLayer, string dashboardName)
+        {
+            List<ImageItem> imagesToShow = new List<ImageItem>();
+
+
+            List<Dashboard> dashboardsReceived = businessLayer.GetDashboard(dashboardName);
+            if (dashboardsReceived.Count > 0)
+            {
+                dataAccess.IncludeMultipleDashboardInList(dashboardsReceived);
+            }
+            // TODO: Creación de imágenes de previsualización del dashboard
+            System.Drawing.Image[] dashboardsPreview = new System.Drawing.Image[0];
+
+            foreach (System.Drawing.Image img in dashboardsPreview)
+            {
+                imagesToShow.Add(new ImageItem("dashtitle", img, false));
+            }
+
+            return imagesToShow;
+        }
+
+        private List<ImageItem> SearchForDashboardLocally(string dashboardName)
+        {
+            List<ImageItem> imagesToShow = new List<ImageItem>();
+            List<Dashboard> dashboardsResult = new List<Dashboard>();
+            Dashboard dashboard = dataAccess.GetDashboardByName(request);
+            // TODO: GetDashboardByName debería devolver por un contains y devolver una lista de dashboards
+            if (dashboard != null)
+                dashboardsResult.Add(dashboard);
+            
+            // TODO: Para los dashboards en la lista de dashboardsResult, sacar imagen de previsualización
+            System.Drawing.Image[] dashboardsPreview = new System.Drawing.Image[0];
+
+            foreach (System.Drawing.Image img in dashboardsPreview)
+            {
+                imagesToShow.Add(new ImageItem("dashtitle", img, false));
+            }
+
+            return imagesToShow;
+        }
+
         private void MainSearch_Click(object sender, RoutedEventArgs e)
         {
             string searchingImages = MainSearchbox.Text;
             List<ImageItem> imagesToShow = new List<ImageItem>();
-            // En caso de haber conexión
+
             try
             {
                 Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                
+                // En este caso, existe conexión con el servidor y se usarán sus imágenes   
 
                 if (ImagesOrDashboards.IsChecked == true)
                 {
-                    string[] requestDashboards = searchingImages.Split(' ');
-                    foreach (string request in requestDashboards)
-                    {
-                        List<Dashboard> dashboardsReceived = businessLayer.GetDashboard(request);
-                        if (dashboardsReceived.Count > 0)
-                        {
-                            dataAccess.IncludeMultipleDashboardInList(dashboardsReceived);
-                        }
-                        // Faltaría crear las imágenes que forman el dashboard y mostrarlas
-                        System.Drawing.Image[] dashboardsPreview = new System.Drawing.Image[0];
-
-                        foreach (System.Drawing.Image img in dashboardsPreview)
-                        {
-                            imagesToShow.Add(new ImageItem("dashtitle", img, false));
-                        }
-
-
-                    }
-
+                    // Como el checkbox está seteado a true, se buscarán dashboards
+                    imagesToShow = SearchForDashboardInServer(businessLayer, searchingImages);
                 }
 
                 else
                 {
+                    // El checkbox no está checkeado, se buscarán imágenes
                     string[] requestImages = searchingImages.Split(' ');
-                    PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(requestImages);
-                    foreach (PictoManagementVocabulary.Image img in imagesReceived)
-                    {
-                        dataAccess.SaveNewImage(img.Title, img.FileBase64);
-                        System.Drawing.Image givenImage = dataAccess.GetImageFromFolder(img.Title);
-                        imagesToShow.Add(new ImageItem(img.Title, givenImage, false));
-                    }
+                    imagesToShow = SearchForImagesInServer(businessLayer, requestImages);
                 }
             }
             
@@ -79,41 +126,21 @@ namespace PictoManagementClient
             {
                 if (ImagesOrDashboards.IsChecked == true)
                 {
-                    string[] requestDashboards = searchingImages.Split(' ');
-                    List<Dashboard> dashboardsResult = new List<Dashboard>();
-                    foreach (string request in requestDashboards)
-                    {
-                        Dashboard dashboard = dataAccess.GetDashboardByName(request);
-                        if (dashboard != null)
-                            dashboardsResult.Add(dashboard);
-                    }
-                    // Faltaría crear las imágenes que forman el dashboard y mostrarlas
-                    // En este caso merecería la pena tener una carpeta con las imagenes ya creadas de los dashboards
-                    System.Drawing.Image[] dashboardsPreview = new System.Drawing.Image[0];
-
-                    foreach (System.Drawing.Image img in dashboardsPreview)
-                    {
-                        imagesToShow.Add(new ImageItem("dashtitle", img, false));
-                    }
+                    // Como el checkbox está seteado a true, se buscarán dashboards
+                    imagesToShow = SearchForDashboardLocally(searchingImages);
                 }
 
                 else
                 {
+                    // El checkbox no está checkeado, se buscarán imágenes
                     string[] requestImages = searchingImages.Split(' ');
-                    List<System.Drawing.Image> imagesList = new List<System.Drawing.Image>();
-                    foreach (string img in requestImages)
-                    {
-                        System.Drawing.Image localImage = dataAccess.GetImageFromFolder(img);
-                        if (localImage != null)
-                            imagesList.Add(localImage);
-                        imagesToShow.Add(new ImageItem(img, localImage, false));
-                    }
-                    // Faltaría mostrar las imágenes recibidas
+                    imagesToShow = SearchForImagesLocally(requestImages);
                 }
 
             }
             finally
             {
+                // Finalmente, sea cual sea la búsqueda, se ordena la lista y se muestra
                 imagesToShow = imagesToShow.OrderBy(o => o.title).ToList();
                 list_Images.ItemsSource = imagesToShow;
             }
@@ -124,33 +151,17 @@ namespace PictoManagementClient
         {
             string requestedImages = ImagesSearchbox.Text;
             string[] requestImages = requestedImages.Split(' ');
-            List<System.Drawing.Image> imagesList = new List<System.Drawing.Image>();
             List<ImageItem> imageItems = new List<ImageItem>();
 
             try
             {
                 Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(requestImages);
-                foreach (PictoManagementVocabulary.Image img in imagesReceived)
-                {
-                    dataAccess.SaveNewImage(img.Title, img.FileBase64);
-                    System.Drawing.Image givenImage = dataAccess.GetImageFromFolder(img.Title);
-                    imageItems.Add(new ImageItem(img.Title, givenImage, false));
-                }
-                // Faltaría mostrar las imágenes recibidas
+                imageItems = SearchForImagesInServer(businessLayer, requestImages);
             }
 
             catch
             {
-                foreach (string img in requestImages)
-                {
-                    System.Drawing.Image localImage = dataAccess.GetImageFromFolder(img);
-                    if (localImage != null)
-                        imagesList.Add(localImage);
-                    imageItems.Add(new ImageItem(img, localImage, false));
-                }
-
-                // Faltaría mostrar las imágenes recibidas
+                imageItems = SearchForImagesLocally(requestImages);
             }
             finally
             {
@@ -168,31 +179,24 @@ namespace PictoManagementClient
 
         private void SearchExistingDashboard_Click(object sender, RoutedEventArgs e)
         {
-            string[] requestedDashboards = DashboardSearchbox.Text.Split(' ');
-            List<Dashboard> receivedDashboards = new List<Dashboard>();
+            string requestedDashboard = DashboardSearchbox.Text;
+            List<ImageItem> receivedDashboards = new List<ImageItem>();
 
             try
             {
                 Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                foreach (string dashboardName in requestedDashboards)
-                {
-                    List<Dashboard> dashboards = businessLayer.GetDashboard(dashboardName);
-                    if (dashboards.Count > 0)
-                    {
-                        foreach (Dashboard dash in dashboards)
-                            receivedDashboards.Add(dash);
-                    }
-                }
+                receivedDashboards = SearchForDashboardInServer(businessLayer, requestedDashboard);
             }
 
             catch
             {
-                foreach (string request in requestedDashboards)
-                {
-                    Dashboard dashboard = dataAccess.GetDashboardByName(request);
-                    if (dashboard != null)
-                        receivedDashboards.Add(dashboard);
-                }
+                receivedDashboards = SearchForDashboardLocally(requestedDashboard);
+            }
+
+            finally
+            {
+                receivedDashboards = receivedDashboards.OrderBy(o => o.title).ToList();
+                dashboards_fromServer.ItemSource = receivedDashboards;
             }
         }
 

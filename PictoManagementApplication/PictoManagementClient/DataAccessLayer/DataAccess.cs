@@ -16,6 +16,7 @@ namespace PictoManagementClient.DataAccessLayer
         private string configPath;
         private Dictionary<string, string> configDictionary;
         private List<Dashboard> dashboards;
+        private List<Dashboard> dashboardsTemp;
 
         /// <summary>
         /// Constructor de la clase, carga el fichero de configuración en un diccionario de tipo String - String
