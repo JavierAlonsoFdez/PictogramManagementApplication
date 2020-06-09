@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using PictoManagementVocabulary;
+using System.Drawing.Imaging;
 
 namespace PictoManagementClient.DataAccessLayer
 {
@@ -35,6 +36,11 @@ namespace PictoManagementClient.DataAccessLayer
         public Dictionary<string, string> ConfigDictionary
         {
             get { return configDictionary; }
+        }
+
+        public List<Dashboard> Dashboards
+        {
+            get { return dashboards; }
         }
 
         /// <summary>
@@ -159,6 +165,32 @@ namespace PictoManagementClient.DataAccessLayer
             File.WriteAllBytes(destinationPath, bytes);
         }
 
+        public void SaveNewTemporalImage(string newTitle, string FileBase64)
+        {
+            byte[] bytes = Convert.FromBase64String(FileBase64);
+            string destinationPath = ConfigDictionary["Temp"] + newTitle + ".png";
+            File.WriteAllBytes(destinationPath, bytes);
+        }
+
+        public void SaveImageFile(string newTitle, System.Drawing.Image image)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // Convert Image to byte[]
+                image.Save(ms, ImageFormat.Png);
+                byte[] imageBytes = ms.ToArray();
+
+                // Convert byte[] to Base64 String
+                string base64String = Convert.ToBase64String(imageBytes);
+                SaveNewImage(newTitle, base64String);
+            }
+        }
+
+        /// <summary>
+        /// Obtiene una imagen del directorio donde se guardan si existe una con dicho nombre
+        /// </summary>
+        /// <param name="newTitle">Nombre de la imagen a buscar</param>
+        /// <returns>Retorna el archivo de imagen cuyo título coincide con el buscado</returns>
         public System.Drawing.Image GetImageFromFolder(string newTitle)
         {
             string folderPath = ConfigDictionary["Images"] + newTitle + ".png";
@@ -170,14 +202,78 @@ namespace PictoManagementClient.DataAccessLayer
             return null;
         }
 
+        /// <summary>
+        /// Obtiene un tablero de los existentes a través de su nombre
+        /// </summary>
+        /// <param name="dashboardName">Nombre del tablero a mostrar</param>
+        /// <returns></returns>
         public Dashboard GetDashboardByName(string dashboardName)
         {
             foreach (Dashboard dashboard in dashboards)
             {
-                if (dashboard.Title == dashboardName)
+                if (dashboard.Title.Contains(dashboardName))
                     return dashboard;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Guarda una imagen en una carpeta temporal
+        /// </summary>
+        /// <param name="newTitle">Título de la imagen a guardar</param>
+        /// <param name="FileBase64">Cadena de caracteres que representa la imagen en base64</param>
+        public void SaveImageToTemp(string newTitle, string FileBase64)
+        {
+            byte[] bytes = Convert.FromBase64String(FileBase64);
+            string destinationPath = ConfigDictionary["Temp"] + newTitle + ".png";
+            File.WriteAllBytes(destinationPath, bytes);
+        }
+
+        /// <summary>
+        /// Guarda la imagen que forma el tablero en la carpeta destinada a ello
+        /// </summary>
+        /// <param name="newTitle">Título del archivo que va a ser guardado</param>
+        /// <param name="dashboardPreview">Imagen que conforma el tablero</param>
+        public void SaveDashboardPreview(string newTitle, System.Drawing.Image dashboardPreview)
+        {
+            string path = ConfigDictionary["DashboardsFolder"] + newTitle;
+            dashboardPreview.Save(path, ImageFormat.Png);
+        }
+
+        /// <summary>
+        /// Borra todo el contenido de la lista de dashboards temporal
+        /// </summary>
+        public void CleanDashboardTemporalList()
+        {
+            dashboardsTemp = new List<Dashboard>();
+        }
+
+        /// <summary>
+        /// Guarda un tablero de los almacenados en la lista temporal en la lista definitiva
+        /// </summary>
+        /// <param name="dashboardName">Nombre del tablero a ser transferido a la lista definitiva</param>
+        public void SaveTemporalDashboard(string dashboardName)
+        {
+            foreach (Dashboard tempDashboard in dashboardsTemp)
+            {
+                if (tempDashboard.Title == dashboardName)
+                    dashboards.Add(tempDashboard);
+            }
+        }
+
+        public List<System.Drawing.Image> getDashboardsImages()
+        {
+            List<System.Drawing.Image> dashboardsImages = new List<System.Drawing.Image>();
+            foreach (Dashboard dash in dashboards)
+            {
+                string folderPath = ConfigDictionary["Dashboards"] + dash.Title + ".png";
+                if (Directory.Exists(folderPath))
+                {
+                    dashboardsImages.Add(System.Drawing.Image.FromFile(folderPath));
+                }
+            }
+
+            return dashboardsImages;
         }
     }
 }

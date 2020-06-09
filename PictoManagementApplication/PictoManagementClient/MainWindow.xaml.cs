@@ -1,11 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
+using PictoManagementVocabulary;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using PictoManagementVocabulary;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -33,8 +34,8 @@ namespace PictoManagementClient
         {
             List<ImageItem> imagesToShow = new List<ImageItem>();
 
-            PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(requestImages);
-            foreach (PictoManagementVocabulary.Image img in images)
+            PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(images);
+            foreach (PictoManagementVocabulary.Image img in imagesReceived)
             {
                 dataAccess.SaveNewImage(img.Title, img.FileBase64);
                 System.Drawing.Image givenImage = dataAccess.GetImageFromFolder(img.Title);
@@ -47,7 +48,7 @@ namespace PictoManagementClient
         private List<ImageItem> SearchForImagesLocally(string[] requestedImages)
         {
             List<ImageItem> imagesToShow = new List<ImageItem>();
-            foreach (string img in requestImages)
+            foreach (string img in requestedImages)
             {
                 System.Drawing.Image localImage = dataAccess.GetImageFromFolder(img);
                 if (localImage != null)
@@ -82,7 +83,7 @@ namespace PictoManagementClient
         {
             List<ImageItem> imagesToShow = new List<ImageItem>();
             List<Dashboard> dashboardsResult = new List<Dashboard>();
-            Dashboard dashboard = dataAccess.GetDashboardByName(request);
+            Dashboard dashboard = dataAccess.GetDashboardByName(dashboardName);
             // TODO: GetDashboardByName debería devolver por un contains y devolver una lista de dashboards
             if (dashboard != null)
                 dashboardsResult.Add(dashboard);
@@ -172,9 +173,47 @@ namespace PictoManagementClient
 
         private void CreateNewDashboard_Click(object sender, RoutedEventArgs e)
         {
-            // Pasar la lista de la función anterior (las seleccionadas en el canvas) a un array y formar el dashboard
-            // Crear la imagen y guardarlo en el fichero
+            List<ImageItem> imagesToInclude = new List<ImageItem>();
+            foreach (var image in images_forNewDashboard.ItemsSource)
+            {
+                var imageItem = image as ImageItem;
+                if (imageItem.include == true)
+                {
+                    imagesToInclude.Add(imageItem);
+                }
+            }
+
+
+            PictoManagementVocabulary.Image[] images = new PictoManagementVocabulary.Image[imagesToInclude.Count];
+            foreach (ImageItem temp in imagesToInclude)
+            {
+                dataAccess.SaveImageFile(temp.title, temp.image);
+                string imagePath = dataAccess.ConfigDictionary["Images"] + temp.title;
+                images[imagesToInclude.IndexOf(temp)] = new PictoManagementVocabulary.Image(temp.title, imagePath);
+            }
+
+            Dashboard newDashboard = new Dashboard(NewDashboardTitle.Text, images);
+            // TODO: Crear la imagen que compone el tablero
+            
             // Comprogar si se comparte o no y, en caso afirmativo, enviar al 
+
+            if (ShareNewDashboard.IsChecked == true)
+            {
+                try
+                {
+                    Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], Int32.Parse(dataAccess.ConfigDictionary["Port"]);
+                    string dashboardContent = newDashboard.Title + ",";
+                    foreach (PictoManagementVocabulary.Image img in newDashboard.Images)
+                    {
+                        dashboardContent += img.Title + ",";
+                    }
+                    businessLayer.SendDashboard(dashboardContent);
+                }
+                catch
+                {
+                    // TODO: Mostrar de alguna manera el error, por ejemplo en una ventana con el texto tipo "No puede conectarse con el servidor"
+                }
+            }
         }
 
         private void SearchExistingDashboard_Click(object sender, RoutedEventArgs e)
@@ -196,7 +235,7 @@ namespace PictoManagementClient
             finally
             {
                 receivedDashboards = receivedDashboards.OrderBy(o => o.title).ToList();
-                dashboards_fromServer.ItemSource = receivedDashboards;
+                dashboards_fromServer.ItemsSource = receivedDashboards;
             }
         }
 
@@ -235,9 +274,9 @@ namespace PictoManagementClient
                 PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(requestImages);
                 foreach (PictoManagementVocabulary.Image img in imagesReceived)
                 {
-                    dataAccess.SaveNewImage(img.Title, img.FileBase64);
+                    dataAccess.SaveNewTemporalImage(img.Title, img.FileBase64);
                 }
-                // Faltaría mostrar las imágenes recibidas
+                
             }
 
             catch
@@ -249,8 +288,9 @@ namespace PictoManagementClient
                         imagesList.Add(localImage);
                 }
 
-                // Faltaría mostrar las imágenes recibidas
+                
             }
+            
         }
 
         private void ModifyMyDashboard_Click(object sender, RoutedEventArgs e)
@@ -265,7 +305,19 @@ namespace PictoManagementClient
 
         private void SeeMyDashboards_Click(object sender, RoutedEventArgs e)
         {
+            List<ImageItem> imagesToShow = new List<ImageItem>();
+            foreach (Dashboard dash in dataAccess.Dashboards)
+            {
+                string folderPath = dataAccess.ConfigDictionary["Dashboards"] + dash.Title + ".png";
+                if (Directory.Exists(folderPath))
+                {
+                    ImageItem imgItem = new ImageItem(dash.Title, System.Drawing.Image.FromFile(folderPath), false);
+                    imagesToShow.Add(imgItem);
+                }
+            }
 
+            imagesToShow = imagesToShow.OrderBy(o => o.title).ToList();
+            own_Dashboards.ItemsSource = imagesToShow;
         }
     }
 
