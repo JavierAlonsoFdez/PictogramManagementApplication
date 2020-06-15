@@ -37,7 +37,7 @@ namespace PictoManagementClient
             PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(images);
             foreach (PictoManagementVocabulary.Image img in imagesReceived)
             {
-                dataAccess.SaveNewImage(img.Title, img.FileBase64);
+                dataAccess.SaveNewTemporalImage(img.Title, img.FileBase64);
                 System.Drawing.Image givenImage = dataAccess.GetImageFromFolder(img.Title);
                 imagesToShow.Add(new ImageItem(img.Title, givenImage, false));
             }
@@ -84,7 +84,7 @@ namespace PictoManagementClient
             List<ImageItem> imagesToShow = new List<ImageItem>();
             List<Dashboard> dashboardsResult = new List<Dashboard>();
             Dashboard dashboard = dataAccess.GetDashboardByName(dashboardName);
-            // TODO: GetDashboardByName debería devolver por un contains y devolver una lista de dashboards
+            
             if (dashboard != null)
                 dashboardsResult.Add(dashboard);
             
@@ -188,7 +188,7 @@ namespace PictoManagementClient
             foreach (ImageItem temp in imagesToInclude)
             {
                 dataAccess.SaveImageFile(temp.title, temp.image);
-                string imagePath = dataAccess.ConfigDictionary["Images"] + temp.title;
+                string imagePath = dataAccess.ConfigDictionary["Images"] + temp.title + ".png";
                 images[imagesToInclude.IndexOf(temp)] = new PictoManagementVocabulary.Image(temp.title, imagePath);
             }
 
@@ -201,7 +201,7 @@ namespace PictoManagementClient
             {
                 try
                 {
-                    Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], Int32.Parse(dataAccess.ConfigDictionary["Port"]);
+                    Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], Int32.Parse(dataAccess.ConfigDictionary["Port"]));
                     string dashboardContent = newDashboard.Title + ",";
                     foreach (PictoManagementVocabulary.Image img in newDashboard.Images)
                     {
@@ -241,12 +241,12 @@ namespace PictoManagementClient
 
         private void EditSelectedDashboard_Click(object sender, RoutedEventArgs e)
         {
-
+            // Recoger la lista de dashboards elegida, elegir el seleccionado como a editar y solicitar sus imagenes al server
         }
 
         private void SaveSelectedDashboard_Click(object sender, RoutedEventArgs e)
         {
-
+            // Recoger todas las imagenes seleccionadas como true en la pantalla y crear el dashboard con el título de la barra de arriba
         }
 
         private void MyDashboardsSearch_Click(object sender, RoutedEventArgs e)
@@ -295,12 +295,12 @@ namespace PictoManagementClient
 
         private void ModifyMyDashboard_Click(object sender, RoutedEventArgs e)
         {
-
+            // Recoger todos los items mostrados en pantalla, si UNO está a true solicitar sus imágenes y realizar la edición
         }
 
         private void SaveModifiedDashboard_Click(object sender, RoutedEventArgs e)
         {
-
+            // Recoger todas las imagenes a true y formar con ello el tablero nuevo, sustituyendo al antiguo
         }
 
         private void SeeMyDashboards_Click(object sender, RoutedEventArgs e)

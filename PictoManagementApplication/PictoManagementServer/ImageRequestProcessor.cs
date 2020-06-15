@@ -11,8 +11,8 @@ namespace PictoManagementServer
     /// </summary>
     class ImageRequestProcessor
     {
-        private List<Image> _imageList = new List<Image>();
-        private BinaryCodec<Image> binCod = new BinaryCodec<Image>();
+        private List<Image> _imageList;
+        private BinaryCodec<Image> binCod;
 
         /// <summary>
         /// Constructor de la clase
@@ -20,6 +20,8 @@ namespace PictoManagementServer
         /// <param name="imagesString">Recibe un string que es el cuerpo de la petición</param>
         public ImageRequestProcessor(string imagesString)
         {
+            _imageList = new List<Image>();
+            binCod = new BinaryCodec<Image>();
             string[] imagesArray = imagesString.Split(",");
 
             foreach (string img in imagesArray)

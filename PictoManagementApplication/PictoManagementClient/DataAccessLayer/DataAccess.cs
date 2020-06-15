@@ -26,6 +26,7 @@ namespace PictoManagementClient.DataAccessLayer
         {
             configPath = @"D:\Documentos\JAVIER\TFG\Repositorio\PictogramManagementApplication\PictoManagementApplication\PictoManagementClientTest\Config\Config.xml"; // Necesito trabajar los path relativos
             dashboards = new List<Dashboard>();
+            dashboardsTemp = new List<Dashboard>();
             LoadConfig();
             LoadDashboardDatabase();
         }
@@ -63,7 +64,24 @@ namespace PictoManagementClient.DataAccessLayer
         }
 
         /// <summary>
-        /// Obtiene todas las imagenes que componen un determinado dashboard
+        /// Lee los dashboards guardados en el json que sirve como base de datos
+        /// </summary>
+        public void LoadDashboardDatabase()
+        {
+            using (StreamReader sr = new StreamReader(ConfigDictionary["Dashboards"]))
+            {
+                string json = sr.ReadToEnd();
+                dashboards = JsonConvert.DeserializeObject<List<Dashboard>>(json);
+            }
+            // Estp es para evitar que al leer un fichero vacío deje de ser una instancia de un objeto
+            if (dashboards == null)
+            {
+                dashboards = new List<Dashboard>();
+            }
+        }
+
+        /// <summary>
+        /// Obtiene todos los nombres de las imagenes que componen un determinado dashboard
         /// </summary>
         /// <param name="dashboardName">Nombre del dashboard del que se quieren obtener las imágenes</param>
         /// <returns>Array de string con el título de cada imagen</returns>
@@ -90,33 +108,6 @@ namespace PictoManagementClient.DataAccessLayer
         }
 
         /// <summary>
-        /// Lee los dashboards guardados en el json que sirve como base de datos
-        /// </summary>
-        public void LoadDashboardDatabase()
-        {
-            using (StreamReader sr = new StreamReader(ConfigDictionary["Dashboards"]))
-            {
-                string json = sr.ReadToEnd();
-                dashboards = JsonConvert.DeserializeObject<List<Dashboard>>(json);
-            }
-            // Estp es para evitar que al leer un fichero vacío deje de ser una instancia de un objeto
-            if (dashboards == null)
-            {
-                dashboards = new List<Dashboard>();
-            }
-        }
-
-        /// <summary>
-        /// Incluye un nuevo dashboard en la base de datos de dashboards
-        /// </summary>
-        /// <param name="newDashboard">Nuevo dashboard a incluir en la base de datos</param>
-        public void WriteDashboardToDatabase()
-        {
-            string json = JsonConvert.SerializeObject(dashboards.ToArray());
-            File.WriteAllText(ConfigDictionary["Dashboards"], json);
-        }
-
-        /// <summary>
         /// Incluye un tablero en la lista de tableros previamente cargada
         /// </summary>
         /// <param name="newDashboard">Tablero a incluir en la lista</param>
@@ -135,6 +126,16 @@ namespace PictoManagementClient.DataAccessLayer
             {
                 IncludeDashboardInList(newDashboard);
             }
+        }
+
+        /// <summary>
+        /// Incluye un nuevo dashboard en la base de datos de dashboards
+        /// </summary>
+        /// <param name="newDashboard">Nuevo dashboard a incluir en la base de datos</param>
+        public void WriteDashboardToDatabase()
+        {
+            string json = JsonConvert.SerializeObject(dashboards.ToArray());
+            File.WriteAllText(ConfigDictionary["Dashboards"], json);
         }
 
         /// <summary>
@@ -230,6 +231,20 @@ namespace PictoManagementClient.DataAccessLayer
         }
 
         /// <summary>
+        /// Mueve una imagen de la carpeta temporal a la carpeta destino
+        /// </summary>
+        /// <param name="title">Título de la imagen a cambiar de almacenamiento</param>
+        public void MoveImageFromTempToDestination(string title)
+        {
+            string testTemporaryPath = ConfigDictionary["Temp"] + title + ".png";
+            if (Directory.Exists(testTemporaryPath))
+            {
+                string destinationPath = ConfigDictionary["Images"] + title + ".png";
+                File.Move(testTemporaryPath, destinationPath);
+            }
+        }
+
+        /// <summary>
         /// Guarda la imagen que forma el tablero en la carpeta destinada a ello
         /// </summary>
         /// <param name="newTitle">Título del archivo que va a ser guardado</param>
@@ -261,19 +276,47 @@ namespace PictoManagementClient.DataAccessLayer
             }
         }
 
-        public List<System.Drawing.Image> getDashboardsImages()
+        /// <summary>
+        /// Saca todas las imágenes que contiene un dashboard (si están descargadas en el cliente)
+        /// </summary>
+        /// <returns>Lista de imágenes que contiene el dashboard</returns>
+        public List<System.Drawing.Image> getDashboardsImages(string dashboardName)
         {
             List<System.Drawing.Image> dashboardsImages = new List<System.Drawing.Image>();
             foreach (Dashboard dash in dashboards)
             {
-                string folderPath = ConfigDictionary["Dashboards"] + dash.Title + ".png";
-                if (Directory.Exists(folderPath))
+                if (dash.Title == dashboardName)
                 {
-                    dashboardsImages.Add(System.Drawing.Image.FromFile(folderPath));
+                    string folderPath = ConfigDictionary["Dashboards"] + dash.Title + ".png";
+                    if (Directory.Exists(folderPath))
+                    {
+                        dashboardsImages.Add(System.Drawing.Image.FromFile(folderPath));
+                    }
                 }
             }
 
             return dashboardsImages;
+        }
+
+        /// <summary>
+        /// Borra todo el contenido de la carpeta Temp
+        /// </summary>
+        public void EmptyTempDirectory()
+        {
+            DirectoryInfo tempDirectory = new DirectoryInfo(ConfigDictionary["Temp"]);
+
+            foreach (FileInfo file in tempDirectory.GetFiles())
+            {
+                file.Delete();
+            }
+        }
+
+        /// <summary>
+        /// Borra el contenido de la lista temporal de dashboards
+        /// </summary>
+        public void EmptyDashboardsTempList()
+        {
+            dashboardsTemp = new List<Dashboard>();
         }
     }
 }
