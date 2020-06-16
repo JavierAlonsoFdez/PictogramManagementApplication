@@ -12,6 +12,9 @@ using System.Drawing.Imaging;
 
 namespace PictoManagementClient.DataAccessLayer
 {
+    /// <summary>
+    /// Capa de acceso a datos
+    /// </summary>
     public class DataAccess
     {
         private string configPath;
@@ -39,6 +42,9 @@ namespace PictoManagementClient.DataAccessLayer
             get { return configDictionary; }
         }
 
+        /// <summary>
+        /// Permite acceder al atributo dashboards
+        /// </summary>
         public List<Dashboard> Dashboards
         {
             get { return dashboards; }
@@ -73,7 +79,7 @@ namespace PictoManagementClient.DataAccessLayer
                 string json = sr.ReadToEnd();
                 dashboards = JsonConvert.DeserializeObject<List<Dashboard>>(json);
             }
-            // Estp es para evitar que al leer un fichero vacío deje de ser una instancia de un objeto
+            // Esto es para evitar que al leer un fichero vacío deje de ser una instancia de un objeto
             if (dashboards == null)
             {
                 dashboards = new List<Dashboard>();
@@ -166,6 +172,11 @@ namespace PictoManagementClient.DataAccessLayer
             File.WriteAllBytes(destinationPath, bytes);
         }
 
+        /// <summary>
+        /// Guarda una imagen en la ruta temporal
+        /// </summary>
+        /// <param name="newTitle">Título con el que se guardará la imagen</param>
+        /// <param name="FileBase64">Codificación del archivo en base64</param>
         public void SaveNewTemporalImage(string newTitle, string FileBase64)
         {
             byte[] bytes = Convert.FromBase64String(FileBase64);
@@ -173,15 +184,18 @@ namespace PictoManagementClient.DataAccessLayer
             File.WriteAllBytes(destinationPath, bytes);
         }
 
+        /// <summary>
+        /// Guarda una imagen en un archivo PNG en la carpeta de imágenes
+        /// </summary>
+        /// <param name="newTitle">Título con el que se guardará la imagen</param>
+        /// <param name="image">Objeto que representa la imagen</param>
         public void SaveImageFile(string newTitle, System.Drawing.Image image)
         {
             using (MemoryStream ms = new MemoryStream())
-            {
-                // Convert Image to byte[]
+            {                
                 image.Save(ms, ImageFormat.Png);
                 byte[] imageBytes = ms.ToArray();
 
-                // Convert byte[] to Base64 String
                 string base64String = Convert.ToBase64String(imageBytes);
                 SaveNewImage(newTitle, base64String);
             }
@@ -216,18 +230,6 @@ namespace PictoManagementClient.DataAccessLayer
                     return dashboard;
             }
             return null;
-        }
-
-        /// <summary>
-        /// Guarda una imagen en una carpeta temporal
-        /// </summary>
-        /// <param name="newTitle">Título de la imagen a guardar</param>
-        /// <param name="FileBase64">Cadena de caracteres que representa la imagen en base64</param>
-        public void SaveImageToTemp(string newTitle, string FileBase64)
-        {
-            byte[] bytes = Convert.FromBase64String(FileBase64);
-            string destinationPath = ConfigDictionary["Temp"] + newTitle + ".png";
-            File.WriteAllBytes(destinationPath, bytes);
         }
 
         /// <summary>
@@ -280,7 +282,7 @@ namespace PictoManagementClient.DataAccessLayer
         /// Saca todas las imágenes que contiene un dashboard (si están descargadas en el cliente)
         /// </summary>
         /// <returns>Lista de imágenes que contiene el dashboard</returns>
-        public List<System.Drawing.Image> getDashboardsImages(string dashboardName)
+        public List<System.Drawing.Image> GetDashboardsImages(string dashboardName)
         {
             List<System.Drawing.Image> dashboardsImages = new List<System.Drawing.Image>();
             foreach (Dashboard dash in dashboards)
@@ -309,14 +311,6 @@ namespace PictoManagementClient.DataAccessLayer
             {
                 file.Delete();
             }
-        }
-
-        /// <summary>
-        /// Borra el contenido de la lista temporal de dashboards
-        /// </summary>
-        public void EmptyDashboardsTempList()
-        {
-            dashboardsTemp = new List<Dashboard>();
         }
     }
 }
