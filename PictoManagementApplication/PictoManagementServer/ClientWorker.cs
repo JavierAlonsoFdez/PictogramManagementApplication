@@ -16,9 +16,14 @@ namespace PictoManagementServer
         private byte[] receiveBuffer;
         private BinaryReader binReader;
         private BinaryWriter binWriter;
+        /// <summary>
+        /// Instancia del log para generar una traza
+        /// </summary>
+        private LogSingleTon log;
 
         public ClientWorker(TcpClient tcpClient)
         {
+            log = LogSingleTon.Instance;
             _tcpClient = tcpClient;
             _networkStream = tcpClient.GetStream();
             binReader = new BinaryReader(_networkStream);
@@ -30,10 +35,10 @@ namespace PictoManagementServer
 
         public void doWork()
         {
-            // Para escribir y leer, mejor usar Binary Writer y Binary Reader
-            // Así, se envía primero un entero con el número de bytes a leer y se leen esos bytes
             int bufferSize = binReader.ReadInt32();
             receiveBuffer = binReader.ReadBytes(bufferSize);
+
+            log.LogMessage("Request recibida, comenzando procesado.");
 
             RequestProcessor requestProcessor = new RequestProcessor(receiveBuffer);
             CheckTypeOfRequestAndProcess(requestProcessor.GetTypeOfRequest(), requestProcessor.GetBodyOfRequest());
@@ -52,15 +57,19 @@ namespace PictoManagementServer
             switch (requestType)
             {
                 case "get image":
-                    ProcessImageRequest(bodyOfRequest, ref binWriter);
+                    ProcessImageRequest(bodyOfRequest);
+                    log.LogMessage("Imagenes procesadas.");
                     break;
                 case "get dashboard":
-                    ProcessGetDashboardRequest(bodyOfRequest, ref binWriter);
+                    ProcessGetDashboardRequest(bodyOfRequest);
+                    log.LogMessage("Dashboard enviado.");
                     break;
                 case "insert dashboard":
                     ProcessInsertDashboardRequest(bodyOfRequest);
+                    log.LogMessage("Dashboard recibido.");
                     break;
                 default:
+                    log.LogWarning("Petición inválida.");
                     break;
             }
         }
@@ -70,7 +79,7 @@ namespace PictoManagementServer
         /// </summary>
         /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
         /// <param name="netStream">Referencia al stream para enviar datos.</param>
-        public void ProcessImageRequest(string bodyOfRequest, ref BinaryWriter binWriter)
+        public void ProcessImageRequest(string bodyOfRequest)
         {
             ImageRequestProcessor imageProcessor = new ImageRequestProcessor(bodyOfRequest);
             foreach (Image img in imageProcessor.GetImages())
@@ -97,7 +106,7 @@ namespace PictoManagementServer
         /// </summary>
         /// <param name="bodyOfRequest">Cuerpo de la petición.</param>
         /// <param name="netStream">Referencia al stream para enviar datos.</param>
-        public void ProcessGetDashboardRequest(string bodyOfRequest, ref BinaryWriter binWriter)
+        public void ProcessGetDashboardRequest(string bodyOfRequest)
         {
             DashboardRequestProcessor dashboardProcessor = new DashboardRequestProcessor();
             List<Dashboard> dashboardList = dashboardProcessor.GetDataFromDashboard(bodyOfRequest);

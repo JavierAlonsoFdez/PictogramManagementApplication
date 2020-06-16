@@ -15,11 +15,17 @@ namespace PictoManagementServer
         private BinaryCodec<Image> binCod;
 
         /// <summary>
+        /// Instancia del log para generar una traza
+        /// </summary>
+        private LogSingleTon log;
+
+        /// <summary>
         /// Constructor de la clase
         /// </summary>
         /// <param name="imagesString">Recibe un string que es el cuerpo de la petición</param>
         public ImageRequestProcessor(string imagesString)
         {
+            log = LogSingleTon.Instance;
             _imageList = new List<Image>();
             binCod = new BinaryCodec<Image>();
             string[] imagesArray = imagesString.Split(",");

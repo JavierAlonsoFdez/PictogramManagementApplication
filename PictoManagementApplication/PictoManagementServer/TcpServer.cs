@@ -31,6 +31,9 @@ namespace PictoManagementServer
             tcpListener = new TcpListener(IPAddress.Any, port);
         }
 
+        /// <summary>
+        /// Inicia el tcpListener y comienza a aceptar clientes
+        /// </summary>
         public void Start()
         {
             tcpListener.Start();
@@ -56,7 +59,6 @@ namespace PictoManagementServer
 
 
                 listClients.Add(clientWorker);
-                // clientWorker.Start(); // Not implemented
                 // Recorro la lista de clientes para comprobar si alguno ya ha acabado de procesar la petición
                 // Si ya se ha procesado la petición, ya ha acabado, se quita de la lista de control
                 for (int i = 0; i < listClients.Count; i++)
@@ -65,6 +67,7 @@ namespace PictoManagementServer
                     {
                         listClients.RemoveAt(i);
                         i--;
+                        log.LogMessage("Client has finished and was deleted.");
                     }
                 }
             }
