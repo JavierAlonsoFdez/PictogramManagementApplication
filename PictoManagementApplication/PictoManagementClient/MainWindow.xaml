@@ -34,10 +34,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="100" DisplayMemberBinding="{Binding include}">
+                                <GridViewColumn Header="Incluir" Width="100">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="MyInclude" Content="Incluir" />
+                                            <CheckBox IsChecked="{Binding isIncluded}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -75,10 +75,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90" DisplayMemberBinding="{Binding include}">
+                                <GridViewColumn Header="Incluir" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="MyInclude" Content="Incluir" />
+                                            <CheckBox IsChecked="{Binding isIncluded}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -115,10 +115,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90" DisplayMemberBinding="{Binding include}">
+                                <GridViewColumn Header="Incluir" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="MyInclude" Content="Incluir" />
+                                            <CheckBox IsChecked="{Binding isIncluded}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -158,10 +158,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90" DisplayMemberBinding="{Binding include}">
+                                <GridViewColumn Header="Incluir" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="MyInclude" Content="Incluir" />
+                                            <CheckBox IsChecked="{Binding isIncluded}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -196,10 +196,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90" DisplayMemberBinding="{Binding include}">
+                                <GridViewColumn Header="Incluir" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="MyInclude" Content="Incluir"/>
+                                            <CheckBox IsChecked="{Binding isIncluded}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

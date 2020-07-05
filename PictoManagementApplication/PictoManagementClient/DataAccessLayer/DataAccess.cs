@@ -209,7 +209,7 @@ namespace PictoManagementClient.DataAccessLayer
         public System.Drawing.Image GetImageFromFolder(string newTitle)
         {
             string folderPath = ConfigDictionary["Images"] + newTitle + ".png";
-            if (Directory.Exists(folderPath))
+            if (File.Exists(folderPath))
             {
                 return System.Drawing.Image.FromFile(folderPath);
             }
@@ -239,7 +239,7 @@ namespace PictoManagementClient.DataAccessLayer
         public void MoveImageFromTempToDestination(string title)
         {
             string testTemporaryPath = ConfigDictionary["Temp"] + title + ".png";
-            if (Directory.Exists(testTemporaryPath))
+            if (File.Exists(testTemporaryPath))
             {
                 string destinationPath = ConfigDictionary["Images"] + title + ".png";
                 File.Move(testTemporaryPath, destinationPath);
@@ -289,8 +289,8 @@ namespace PictoManagementClient.DataAccessLayer
             {
                 if (dash.Title == dashboardName)
                 {
-                    string folderPath = ConfigDictionary["Dashboards"] + dash.Title + ".png";
-                    if (Directory.Exists(folderPath))
+                    string folderPath = ConfigDictionary["DashboardsFolder"] + dash.Title + ".png";
+                    if (File.Exists(folderPath))
                     {
                         dashboardsImages.Add(System.Drawing.Image.FromFile(folderPath));
                     }
@@ -298,6 +298,27 @@ namespace PictoManagementClient.DataAccessLayer
             }
 
             return dashboardsImages;
+        }
+
+        public List<Dashboard> GetDashboardByContent(string content)
+        {
+            List<Dashboard> dashboardsByContent = new List<Dashboard>();
+            foreach (Dashboard dash in dashboards)
+            {
+                foreach (Image img in dash.Images)
+                {
+                    if (img.Title == content && !dashboardsByContent.Contains(dash))
+                    {
+                        dashboardsByContent.Add(dash);
+                    }
+                }
+            }
+            
+            if (dashboardsByContent.Count() > 0)
+            {
+                return dashboardsByContent;
+            }
+            return null;
         }
 
         /// <summary>

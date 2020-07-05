@@ -30,34 +30,6 @@ namespace PictoManagementClient
             dataAccess = new DataAccessLayer.DataAccess();
         }
 
-        private List<ImageItem> SearchForImagesInServer(Controller.BusinessLayer businessLayer, string[] images)
-        {
-            List<ImageItem> imagesToShow = new List<ImageItem>();
-
-            PictoManagementVocabulary.Image[] imagesReceived = businessLayer.RequestImages(images);
-            foreach (PictoManagementVocabulary.Image img in imagesReceived)
-            {
-                dataAccess.SaveNewTemporalImage(img.Title, img.FileBase64);
-                System.Drawing.Image givenImage = dataAccess.GetImageFromFolder(img.Title);
-                imagesToShow.Add(new ImageItem(img.Title, givenImage, false));
-            }
-
-            return imagesToShow;
-        }
-
-        private List<ImageItem> SearchForImagesLocally(string[] requestedImages)
-        {
-            List<ImageItem> imagesToShow = new List<ImageItem>();
-            foreach (string img in requestedImages)
-            {
-                System.Drawing.Image localImage = dataAccess.GetImageFromFolder(img);
-                if (localImage != null)
-                    imagesToShow.Add(new ImageItem(img, localImage, false));
-            }
-
-            return imagesToShow;
-        }
-
         private List<ImageItem> SearchForDashboardInServer(Controller.BusinessLayer businessLayer, string dashboardName)
         {
             List<ImageItem> imagesToShow = new List<ImageItem>();
@@ -79,73 +51,162 @@ namespace PictoManagementClient
             return imagesToShow;
         }
 
-        private List<ImageItem> SearchForDashboardLocally(string dashboardName)
-        {
-            List<ImageItem> imagesToShow = new List<ImageItem>();
-            List<Dashboard> dashboardsResult = new List<Dashboard>();
-            Dashboard dashboard = dataAccess.GetDashboardByName(dashboardName);
-            
-            if (dashboard != null)
-                dashboardsResult.Add(dashboard);
-            
-            // TODO: Para los dashboards en la lista de dashboardsResult, sacar imagen de previsualización
-            System.Drawing.Image[] dashboardsPreview = new System.Drawing.Image[0];
+        
 
-            foreach (System.Drawing.Image img in dashboardsPreview)
+        /// <summary>
+        /// Busca imagenes en el directorio local de imagenes
+        /// </summary>
+        /// <param name="requestedImages">Array con el titulo de las imagenes a buscar</param>
+        /// <returns>Lista de objetos con las imagenes</returns>
+        private List<ImageItem> SearchForImagesLocally(string[] requestedImages)
+        {
+            List<ImageItem> localImages = new List<ImageItem>();
+            foreach (string img in requestedImages)
             {
-                imagesToShow.Add(new ImageItem("dashtitle", img, false));
+                string searchPath = dataAccess.ConfigDictionary["Images"] + img + ".png";
+                if (File.Exists(searchPath))
+                {
+                    localImages.Add(new ImageItem(img, searchPath, false));
+                }
             }
 
-            return imagesToShow;
+            return localImages;
+        }
+
+        /// <summary>
+        /// Busca imagenes en el servidor, las guarda en el directorio temporal y las pasa a la lista de imagenes a mostrar
+        /// </summary>
+        /// <param name="businessLayer">Controlador de negocio</param>
+        /// <param name="images">Array de imagenes a buscar</param>
+        /// <returns>Lista de imagenes a mostrar en la lista</returns>
+        private List<ImageItem> SearchForImagesInServer(Controller.BusinessLayer businessLayer, string[] images)
+        {
+            List<ImageItem> serverImages = new List<ImageItem>();
+            PictoManagementVocabulary.Image[] imagesFromServer = businessLayer.RequestImages(images);
+
+            foreach (PictoManagementVocabulary.Image img in imagesFromServer)
+            {
+                dataAccess.SaveNewTemporalImage(img.Title, img.FileBase64);
+                string imgPath = dataAccess.ConfigDictionary["Temp"] + img.Title + ".png";
+                if (File.Exists(imgPath))
+                {
+                    serverImages.Add(new ImageItem(img.Title, imgPath, false));
+                }
+            }
+
+            return serverImages;
+        }
+
+        /// <summary>
+        /// Busca los tableros de forma local
+        /// </summary>
+        /// <param name="dashboardNames">Array con el contenido a buscar</param>
+        /// <returns>Lista de resultados encontrados</returns>
+        private List<ImageItem> SearchForDashboardLocally(string[] dashboardNames)
+        {
+            List<ImageItem> dashboardImages = new List<ImageItem>();
+            List<Dashboard> dashboardsResult = new List<Dashboard>();
+
+            foreach (string dashboardName in dashboardNames)
+            {
+                Dashboard dashboard = dataAccess.GetDashboardByName(dashboardName);
+
+                if (dashboard != null)
+                {
+                    dashboardsResult.Add(dashboard);
+                }
+                else
+                {
+                    List<Dashboard> dashboardByContent = dataAccess.GetDashboardByContent(dashboardName);
+                    if (dashboardByContent != null)
+                    {
+                        dashboardsResult.AddRange(dashboardByContent);
+                    }
+                }
+            }
+
+            if (dashboardsResult.Count() > 0)
+            {
+                foreach (Dashboard dash in dashboardsResult)
+                {
+                    string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + dash.Title + ".png";
+                    dashboardImages.Add(new ImageItem(dash.Title, dashboardPath, false));
+                }
+
+                return dashboardImages;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Elimina todos los elementos ya existentes en una lista del array de busqueda
+        /// </summary>
+        /// <param name="list">Lista con los elementos ya buscados</param>
+        /// <param name="requestedImages">Elementos a buscar</param>
+        /// <returns>Array con los elementos que aun no se han encontrado</returns>
+        private string[] leftImages(List<ImageItem> list, string[] requestedImages)
+        {
+            foreach (ImageItem item in list)
+            {
+                if (requestedImages.Contains(item.title))
+                {
+                    int aux = Array.IndexOf(requestedImages, item.title);
+                    requestedImages = requestedImages.Where(w => w != requestedImages[aux]).ToArray();
+                }
+            }
+
+            if (requestedImages.Count() > 0)
+            {
+                return requestedImages;
+            }
+            return null;
         }
 
         private void MainSearch_Click(object sender, RoutedEventArgs e)
         {
-            string searchingImages = MainSearchbox.Text;
-            List<ImageItem> imagesToShow = new List<ImageItem>();
-
-            try
+            // Se busca el texto separado por comas, si no tiene comas el texto, se separa por espacios
+            string searchText = MainSearchbox.Text;
+            var listOfString = new List<string>();
+            string[] search = listOfString.ToArray();
+            if (searchText.Contains(","))
             {
-                Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                // En este caso, existe conexión con el servidor y se usarán sus imágenes   
+                search = searchText.Split(',');
+            }
+            else
+            {
+                search = searchText.Split(' ');
+            }
+            
+            List<ImageItem> itemsToShow = new List<ImageItem>();
 
-                if (ImagesOrDashboards.IsChecked == true)
+            // Si el checkbox está checkeado, se buscan dashboards
+            if (ImagesOrDashboards.IsChecked == true)
+            {
+                itemsToShow.AddRange(SearchForDashboardLocally(search));
+            }
+            // Si el checkbox no está checkeado, se buscan imagenes
+            else
+            {
+                itemsToShow.AddRange(SearchForImagesLocally(search));
+                string[] searchServer = leftImages(itemsToShow, search);
+                if (searchServer != null)
                 {
-                    // Como el checkbox está seteado a true, se buscarán dashboards
-                    imagesToShow = SearchForDashboardInServer(businessLayer, searchingImages);
-                }
-
-                else
-                {
-                    // El checkbox no está checkeado, se buscarán imágenes
-                    string[] requestImages = searchingImages.Split(' ');
-                    imagesToShow = SearchForImagesInServer(businessLayer, requestImages);
+                    try
+                    {
+                        Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"], 
+                            Int32.Parse(dataAccess.ConfigDictionary["Port"]));
+                        itemsToShow.AddRange(SearchForImagesInServer(businessLayer, searchServer));
+                    }
+                    // Aqui quizas seria mejor mostrar un mensaje Toast
+                    catch (Exception exc)
+                    {
+                        throw exc; 
+                    }
                 }
             }
             
-            catch
-            {
-                if (ImagesOrDashboards.IsChecked == true)
-                {
-                    // Como el checkbox está seteado a true, se buscarán dashboards
-                    imagesToShow = SearchForDashboardLocally(searchingImages);
-                }
 
-                else
-                {
-                    // El checkbox no está checkeado, se buscarán imágenes
-                    string[] requestImages = searchingImages.Split(' ');
-                    imagesToShow = SearchForImagesLocally(requestImages);
-                }
-
-            }
-            finally
-            {
-                // Finalmente, sea cual sea la búsqueda, se ordena la lista y se muestra
-                imagesToShow = imagesToShow.OrderBy(o => o.title).ToList();
-                list_Images.ItemsSource = imagesToShow;
-            }
-            
         }
 
         private void NewImagesDashboard_Click(object sender, RoutedEventArgs e)
@@ -309,9 +370,9 @@ namespace PictoManagementClient
             foreach (Dashboard dash in dataAccess.Dashboards)
             {
                 string folderPath = dataAccess.ConfigDictionary["Dashboards"] + dash.Title + ".png";
-                if (Directory.Exists(folderPath))
+                if (File.Exists(folderPath))
                 {
-                    ImageItem imgItem = new ImageItem(dash.Title, System.Drawing.Image.FromFile(folderPath), false);
+                    ImageItem imgItem = new ImageItem(dash.Title, folderPath, false);
                     imagesToShow.Add(imgItem);
                 }
             }
@@ -324,14 +385,16 @@ namespace PictoManagementClient
     public class ImageItem
     {
         public string title { get; set; }
-        public System.Drawing.Image image { get; set; }
+        public string image { get; set; }
         public bool include { get; set; }
 
-        public ImageItem(string _title, System.Drawing.Image _image, bool _include)
+        public ImageItem(string _title, string _image, bool _include)
         {
             title = _title;
             image = _image;
             include = _include;
         }
+
+        // Cambiar todos los ImageItem para tener string y no Image
     }
 }
