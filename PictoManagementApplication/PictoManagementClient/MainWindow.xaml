@@ -27,17 +27,10 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Título" Width="60" DisplayMemberBinding="{Binding name}"/>
-                                <GridViewColumn Header="Vista Previa" Width="315">
+                                <GridViewColumn Header="Vista Previa" Width="425">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding image}" Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="100">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox IsChecked="{Binding isIncluded}"/>
+                                            <Image x:Name="MyImage" Source="{Binding image}" Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -75,10 +68,10 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90">
+                                <GridViewColumn Header="Incluir" Width="100">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsChecked="{Binding isIncluded}"/>
+                                            <CheckBox IsThreeState="False" IsChecked="{Binding isIncluded.IsChecked}" Content="{Binding isIncluded.Content}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -96,7 +89,10 @@
                     <Label Content="Tablero" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="60"/>
                     <TextBox Name="DashboardSearchbox" HorizontalAlignment="Left" Height="26" Margin="155,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
                     <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,39,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SearchExistingDashboard_Click"/>
-                    <ListView Margin="90,81,109,103" x:Name="dashboards_fromServer" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
+                    <Label Content="Pictogramas" HorizontalAlignment="Left" Margin="90,84,0,0" VerticalAlignment="Top" Width="90"/>
+                    <TextBox Name="SearchImagesForExistingDashboard" HorizontalAlignment="Left" Height="26" Margin="185,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="338"/>
+                    <Button Content="Buscar" HorizontalAlignment="Left" Margin="528,84,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="NewImagesExistingDashboard_Click"/>
+                    <ListView Margin="91,133,108,51" x:Name="dashboards_fromServer" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
                         <ListView.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -125,8 +121,8 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,353,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="EditSelectedDashboard_Click"/>
-                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,353,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SaveSelectedDashboard_Click"/>
+                    <Button Content="Editar" HorizontalAlignment="Left" Margin="90,405,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="EditSelectedDashboard_Click" RenderTransformOrigin="0.513,2.326"/>
+                    <Button Content="Guardar" HorizontalAlignment="Left" Margin="185,405,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SaveSelectedDashboard_Click"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
@@ -193,13 +189,6 @@
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <Image x:Name="MyImage" Source="{Binding image}" Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox IsChecked="{Binding isIncluded}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
