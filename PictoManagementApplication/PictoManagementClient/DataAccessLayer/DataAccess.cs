@@ -333,5 +333,18 @@ namespace PictoManagementClient.DataAccessLayer
                 file.Delete();
             }
         }
+
+        public Dashboard GetDashboardFromTemporalList(string title)
+        {
+            foreach (Dashboard dashboard in dashboardsTemp)
+            {
+                if (dashboard.Title == title)
+                {
+                    return dashboard;
+                }
+            }
+
+            return null;
+        }
     }
 }
