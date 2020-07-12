@@ -79,7 +79,7 @@
                         </ListView.View>
                     </ListView>
                     <CheckBox Name="ShareNewDashboard" Content="Compartir" HorizontalAlignment="Left" Margin="90,391,0,0" VerticalAlignment="Top"/>
-                    <Button Name="CreateDashboard" Content="Crear" HorizontalAlignment="Left" Margin="90,411,0,0" VerticalAlignment="Top" Width="90" Click="CreateNewDashboard_Click" IsEnabled="False"/>
+                    <Button Name="CreateDashboardButton" Content="Crear" HorizontalAlignment="Left" Margin="90,411,0,0" VerticalAlignment="Top" Width="90" Click="CreateNewDashboard_Click" IsEnabled="False"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>

@@ -239,7 +239,7 @@ namespace PictoManagementClient
             string dashboardRequest = title + ",";
             foreach (ImageItem imageItem in imagesToDashboard)
             {
-                dashboardRequest = dashboardRequest + imageItem.title;
+                dashboardRequest = dashboardRequest + "," + imageItem.title;
             }
 
             try
@@ -250,7 +250,11 @@ namespace PictoManagementClient
             }
             catch
             {
-                // Mostrar mensaje de no conexion posible
+                string messageText = "No es posible conectarse con el servidor";
+                string caption = "No hay conexion";
+                MessageBoxButton button = MessageBoxButton.OK;
+                MessageBoxImage icon = MessageBoxImage.Warning;
+                MessageBox.Show(messageText, caption, button, icon);
             }
         }
 
@@ -277,6 +281,61 @@ namespace PictoManagementClient
             }
 
             return imageItems;
+        }
+
+        public void CreateDashboard(List<ImageItem> imageItems, Canvas canvas)
+        {
+            Canvas myCanvas = canvas;
+            int numColumns = 5;
+            int numRows = 3;
+            double left;
+            double top;
+            left = 0;
+            top = 0;
+
+            for (int i = 0; i < (numColumns * numRows); i++)
+            {
+                System.Windows.Shapes.Rectangle rectangle = new System.Windows.Shapes.Rectangle();
+                rectangle.Stretch = Stretch.Uniform;
+                rectangle.Width = myCanvas.ActualWidth / numColumns;
+                rectangle.Height = myCanvas.ActualHeight / numRows;
+                ImageBrush brush = new ImageBrush
+                {
+                    ImageSource = new BitmapImage(new Uri(imageItems[i].image, UriKind.Absolute))
+                };
+                brush.Stretch = Stretch.Uniform;
+                brush.Freeze();
+                rectangle.Fill = brush;
+                if (left + rectangle.Width > myCanvas.ActualWidth)
+                {
+                    left = 0;
+                    top += rectangle.Height;
+                }
+                Canvas.SetLeft(rectangle, left);
+                Canvas.SetTop(rectangle, top);
+                myCanvas.Children.Add(rectangle);
+                left += rectangle.Width;
+            }
+        }
+
+        public void SaveDashboardFromCanvas(Canvas myCanvas, string filename)
+        {
+            double dpi = 96;
+            RenderTargetBitmap rtb = new RenderTargetBitmap((int)(myCanvas.ActualWidth * dpi / 96.0),
+                                                            (int)(myCanvas.ActualHeight * dpi / 96.0),
+                                                            dpi,
+                                                            dpi, PixelFormats.Default);
+            rtb.Render(myCanvas);
+
+            PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+            pngBitmapEncoder.Frames.Add(BitmapFrame.Create(rtb));
+
+            using (FileStream fs = File.OpenWrite(String.Format(filename)))
+            {
+                pngBitmapEncoder.Save(fs);
+                fs.Flush();
+                fs.Close();
+            }
         }
 
         /* --- 
@@ -338,7 +397,7 @@ namespace PictoManagementClient
 
             itemsToShow = itemsToShow.OrderBy(o => o.title).ToList();
             images_forNewDashboard.ItemsSource = itemsToShow;
-            CreateDashboard.IsEnabled = true;
+            CreateDashboardButton.IsEnabled = true;
         }
 
         // Crea un dashboard y lo guarda en imagen
@@ -369,7 +428,7 @@ namespace PictoManagementClient
             NewDashboardTitle.Text = "";
             ImagesSearchbox.Text = "";
             images_forNewDashboard.ItemsSource = new List<ImageItem>();
-            CreateDashboard.IsEnabled = false;
+            CreateDashboardButton.IsEnabled = false;
         }
 
         /*  ------------ CREAR TABLERO A PARTIR DE UNO EXISTENTE ------------ */
@@ -498,7 +557,11 @@ namespace PictoManagementClient
             }
             else
             {
-                // Mostrar mensaje estilo "No existe un tablero con ese nombre"
+                string messageText = "No existen tableros con el título especificado";
+                string caption = "No hay resultados";
+                MessageBoxButton button = MessageBoxButton.OK;
+                MessageBoxImage icon = MessageBoxImage.Warning;
+                MessageBox.Show(messageText, caption, button, icon);
             }
         }
 
@@ -525,6 +588,7 @@ namespace PictoManagementClient
                 // Coge el primer dashboard seleccionado
                 if (dashboardItem.isIncluded.IsEnabled == true)
                 {
+                    // Cambiarlo, esto se hace en la base de datos real
                     selectedDashboard = GetDashboardFromTemporalDatabase(dashboardItem.title);
                     break;
                 }

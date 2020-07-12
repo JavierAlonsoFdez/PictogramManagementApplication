@@ -30,8 +30,8 @@ namespace PictoManagementClient.DataAccessLayer
             configPath = @"D:\Documentos\JAVIER\TFG\Repositorio\PictogramManagementApplication\PictoManagementApplication\PictoManagementClientTest\Config\Config.xml"; // Necesito trabajar los path relativos
             dashboards = new List<Dashboard>();
             dashboardsTemp = new List<Dashboard>();
-            LoadConfig();
-            LoadDashboardDatabase();
+            this.LoadConfig();
+            this.LoadDashboardDatabase();
         }
 
         /// <summary>

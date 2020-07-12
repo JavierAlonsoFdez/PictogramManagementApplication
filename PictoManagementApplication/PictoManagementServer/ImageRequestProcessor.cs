@@ -32,10 +32,12 @@ namespace PictoManagementServer
 
             foreach (string img in imagesArray)
             {
-                string[] files = Directory.GetFiles("C:\\Users\\Desktop Javier\\Desktop\\"); // Cambiar el string al directorio real de los pictogramas
+                string firstLetter = img.Substring(0, 1);
+                string secondLetter = img.Substring(1, 1);
+                string[] files = Directory.GetFiles("C:\\Program Files\\PictoManagementApplication\\Images\\" + firstLetter + "\\" + secondLetter + "\\");
                 foreach (string file in files)
                 {
-                    string filename = file.Split("C:\\Users\\Desktop Javier\\Desktop\\")[1];
+                    string filename = file.Split("C:\\Program Files\\PictoManagementApplication\\Images\\ "+ firstLetter + "\\" + secondLetter + "\\")[1];
                     if (filename.Contains(img))
                     {
                         _imageList.Add(new Image(img, file));
