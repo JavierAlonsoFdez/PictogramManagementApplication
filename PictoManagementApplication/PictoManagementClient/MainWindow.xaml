@@ -204,7 +204,7 @@
                                 <GridViewColumn Header="Vista Previa" Width="425">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="250" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

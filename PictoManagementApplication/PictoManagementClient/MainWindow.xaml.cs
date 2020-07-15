@@ -24,7 +24,6 @@ namespace PictoManagementClient
     public partial class MainWindow : Window
     {
         Controller.DataAccess dataAccess;
-        private Dashboard _dashboardInUse;
 
         public MainWindow()
         {
@@ -98,9 +97,6 @@ namespace PictoManagementClient
             {
 
                 string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + dashboardName + ".png";
-                //Dashboard dashboard = dataAccess.GetDashboardByName(dashboardName);
-
-                //if (dashboard != null)
                 if (File.Exists(dashboardPath))
                 {
                     dashboardImages.Add(new Model.ImageItem(dashboardName, dashboardPath, false));
@@ -637,6 +633,8 @@ namespace PictoManagementClient
                 }
             }
 
+            dataAccess.CleanDashboardTemporalList();
+
             DashboardTitle.Text = "";
             SearchImagesForExistingDashboard.Text = "";
             DashboardSearchbox.Text = "";
@@ -696,7 +694,6 @@ namespace PictoManagementClient
                 if (dashboardItem.IsIncluded.IsEnabled == true)
                 {
                     selectedDashboard = dataAccess.GetDashboardFromList(dashboardItem.Title);
-                    _dashboardInUse = selectedDashboard;
                     break;
                 }
             }
@@ -792,6 +789,4 @@ namespace PictoManagementClient
             dataAccess.WriteDashboardToDatabase();
         }
     }
-
-
 }

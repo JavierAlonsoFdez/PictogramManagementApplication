@@ -17,19 +17,19 @@ namespace PictoManagementClient.Controller
     /// </summary>
     public class DataAccess
     {
-        private string configPath;
-        private Dictionary<string, string> configDictionary;
-        private List<Dashboard> dashboards;
-        private List<Dashboard> dashboardsTemp;
+        private string _configPath;
+        private Dictionary<string, string> _configDictionary;
+        private List<Dashboard> _dashboards;
+        private List<Dashboard> _dashboardsTemp;
 
         /// <summary>
         /// Constructor de la clase, carga el fichero de configuración en un diccionario de tipo String - String
         /// </summary>
         public DataAccess()
         {
-            configPath = @"D:\Documentos\JAVIER\TFG\Repositorio\PictogramManagementApplication\PictoManagementApplication\PictoManagementClientTest\Config\Config.xml"; // Necesito trabajar los path relativos
-            dashboards = new List<Dashboard>();
-            dashboardsTemp = new List<Dashboard>();
+            _configPath = @"D:\Documentos\JAVIER\TFG\Repositorio\PictogramManagementApplication\PictoManagementApplication\PictoManagementClientTest\Config\Config.xml"; // Necesito trabajar los path relativos
+            _dashboards = new List<Dashboard>();
+            _dashboardsTemp = new List<Dashboard>();
             this.LoadConfig();
             this.LoadDashboardDatabase();
         }
@@ -39,7 +39,7 @@ namespace PictoManagementClient.Controller
         /// </summary>
         public Dictionary<string, string> ConfigDictionary
         {
-            get { return configDictionary; }
+            get { return _configDictionary; }
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace PictoManagementClient.Controller
         /// </summary>
         public List<Dashboard> Dashboards
         {
-            get { return dashboards; }
+            get { return _dashboards; }
         }
 
         /// <summary>
@@ -55,9 +55,9 @@ namespace PictoManagementClient.Controller
         /// </summary>
         public void LoadConfig()
         {
-            configDictionary = new Dictionary<string, string>();
+            _configDictionary = new Dictionary<string, string>();
 
-            string xmlFile = File.ReadAllText(configPath);
+            string xmlFile = File.ReadAllText(_configPath);
             XmlDocument xmlConfig = new XmlDocument();
             xmlConfig.LoadXml(xmlFile);
 
@@ -65,7 +65,7 @@ namespace PictoManagementClient.Controller
 
             foreach (XmlNode node in nodeList)
             {
-                configDictionary.Add(node.Name, node.InnerText);
+                _configDictionary.Add(node.Name, node.InnerText);
             }
         }
 
@@ -77,12 +77,12 @@ namespace PictoManagementClient.Controller
             using (StreamReader sr = new StreamReader(ConfigDictionary["Dashboards"]))
             {
                 string json = sr.ReadToEnd();
-                dashboards = JsonConvert.DeserializeObject<List<Dashboard>>(json);
+                _dashboards = JsonConvert.DeserializeObject<List<Dashboard>>(json);
             }
             // Esto es para evitar que al leer un fichero vacío deje de ser una instancia de un objeto
-            if (dashboards == null)
+            if (_dashboards == null)
             {
-                dashboards = new List<Dashboard>();
+                _dashboards = new List<Dashboard>();
             }
         }
 
@@ -95,7 +95,7 @@ namespace PictoManagementClient.Controller
         {
             string[] imagesName;
 
-            foreach (Dashboard dashboard in dashboards)
+            foreach (Dashboard dashboard in _dashboards)
             {
                 if (dashboard.Name == dashboardName)
                 {
@@ -119,7 +119,7 @@ namespace PictoManagementClient.Controller
         /// <param name="newDashboard">Tablero a incluir en la lista</param>
         public void IncludeDashboardInList(Dashboard newDashboard)
         {
-            dashboards.Add(ChangePathsInImages(newDashboard));
+            _dashboards.Add(ChangePathsInImages(newDashboard));
             WriteDashboardToDatabase();
         }
 
@@ -142,7 +142,7 @@ namespace PictoManagementClient.Controller
         public void WriteDashboardToDatabase()
         {
             List<Dashboard> dashboardsToDB = new List<Dashboard>();
-            foreach (Dashboard dash in dashboards)
+            foreach (Dashboard dash in _dashboards)
             {
                 List<Image> imagesToDashboard = new List<Image>();
                 foreach (Image img in dash.Images)
@@ -199,54 +199,6 @@ namespace PictoManagementClient.Controller
         }
 
         /// <summary>
-        /// Guarda una imagen en un archivo PNG en la carpeta de imágenes
-        /// </summary>
-        /// <param name="newTitle">Título con el que se guardará la imagen</param>
-        /// <param name="image">Objeto que representa la imagen</param>
-        public void SaveImageFile(string newTitle, System.Drawing.Image image)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {                
-                image.Save(ms, ImageFormat.Png);
-                byte[] imageBytes = ms.ToArray();
-
-                string base64String = Convert.ToBase64String(imageBytes);
-                SaveNewImage(newTitle, base64String);
-            }
-        }
-
-        /// <summary>
-        /// Obtiene una imagen del directorio donde se guardan si existe una con dicho nombre
-        /// </summary>
-        /// <param name="newTitle">Nombre de la imagen a buscar</param>
-        /// <returns>Retorna el archivo de imagen cuyo título coincide con el buscado</returns>
-        public System.Drawing.Image GetImageFromFolder(string newTitle)
-        {
-            string folderPath = ConfigDictionary["Images"] + newTitle + ".png";
-            if (File.Exists(folderPath))
-            {
-                return System.Drawing.Image.FromFile(folderPath);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Obtiene un tablero de los existentes a través de su nombre
-        /// </summary>
-        /// <param name="dashboardName">Nombre del tablero a mostrar</param>
-        /// <returns></returns>
-        public Dashboard GetDashboardByName(string dashboardName)
-        {
-            foreach (Dashboard dashboard in dashboards)
-            {
-                if (dashboard.Name.Contains(dashboardName))
-                    return dashboard;
-            }
-            return null;
-        }
-
-        /// <summary>
         /// Mueve una imagen de la carpeta temporal a la carpeta destino
         /// </summary>
         /// <param name="title">Título de la imagen a cambiar de almacenamiento</param>
@@ -264,63 +216,22 @@ namespace PictoManagementClient.Controller
         }
 
         /// <summary>
-        /// Guarda la imagen que forma el tablero en la carpeta destinada a ello
-        /// </summary>
-        /// <param name="newTitle">Título del archivo que va a ser guardado</param>
-        /// <param name="dashboardPreview">Imagen que conforma el tablero</param>
-        public void SaveDashboardPreview(string newTitle, System.Drawing.Image dashboardPreview)
-        {
-            string path = ConfigDictionary["DashboardsFolder"] + newTitle;
-            dashboardPreview.Save(path, ImageFormat.Png);
-        }
-
-        /// <summary>
         /// Borra todo el contenido de la lista de dashboards temporal
         /// </summary>
         public void CleanDashboardTemporalList()
         {
-            dashboardsTemp = new List<Dashboard>();
+            _dashboardsTemp = new List<Dashboard>();
         }
 
         /// <summary>
-        /// Guarda un tablero de los almacenados en la lista temporal en la lista definitiva
+        /// Saca una lista de dashboards comparando por su resultado
         /// </summary>
-        /// <param name="dashboardName">Nombre del tablero a ser transferido a la lista definitiva</param>
-        public void SaveTemporalDashboard(string dashboardName)
-        {
-            foreach (Dashboard tempDashboard in dashboardsTemp)
-            {
-                if (tempDashboard.Name == dashboardName)
-                    dashboards.Add(tempDashboard);
-            }
-        }
-
-        /// <summary>
-        /// Saca todas las imágenes que contiene un dashboard (si están descargadas en el cliente)
-        /// </summary>
-        /// <returns>Lista de imágenes que contiene el dashboard</returns>
-        public List<System.Drawing.Image> GetDashboardsImages(string dashboardName)
-        {
-            List<System.Drawing.Image> dashboardsImages = new List<System.Drawing.Image>();
-            foreach (Dashboard dash in dashboards)
-            {
-                if (dash.Name == dashboardName)
-                {
-                    string folderPath = ConfigDictionary["DashboardsFolder"] + dash.Name + ".png";
-                    if (File.Exists(folderPath))
-                    {
-                        dashboardsImages.Add(System.Drawing.Image.FromFile(folderPath));
-                    }
-                }
-            }
-
-            return dashboardsImages;
-        }
-
+        /// <param name="content">String a buscar en los tableros</param>
+        /// <returns>Lista de tableros que contienen el texto buscado</returns>
         public List<Dashboard> GetDashboardByContent(string content)
         {
             List<Dashboard> dashboardsByContent = new List<Dashboard>();
-            foreach (Dashboard dash in dashboards)
+            foreach (Dashboard dash in _dashboards)
             {
                 foreach (Image img in dash.Images)
                 {
@@ -357,9 +268,14 @@ namespace PictoManagementClient.Controller
             }
         }
 
+        /// <summary>
+        /// Obtiene un tablero de la lista temporal filtrando por título
+        /// </summary>
+        /// <param name="title">Título del tablero a buscar en la lista temporal</param>
+        /// <returns>Tablero encontrado con ese título</returns>
         public Dashboard GetDashboardFromTemporalList(string title)
         {
-            foreach (Dashboard dashboard in dashboardsTemp)
+            foreach (Dashboard dashboard in _dashboardsTemp)
             {
                 if (dashboard.Name == title)
                 {
@@ -370,9 +286,14 @@ namespace PictoManagementClient.Controller
             return null;
         }
 
+        /// <summary>
+        /// Obtiene un tablero de la lista temporal filtrando por todo su contenido
+        /// </summary>
+        /// <param name="dash">Tablero a ser buscado en la lista temporal</param>
+        /// <returns>Tablero encontrado con ese título y contenido</returns>
         public Dashboard GetDashboardFromTemporalList(Dashboard dash)
         {
-            foreach (Dashboard dashboard in dashboardsTemp)
+            foreach (Dashboard dashboard in _dashboardsTemp)
             {
                 if (dashboard.Name == dash.Name)
                 {
@@ -394,14 +315,23 @@ namespace PictoManagementClient.Controller
             return null;
         }
 
+        /// <summary>
+        /// Añade un tablero en la lista de tableros temporal
+        /// </summary>
+        /// <param name="dash">Tablero a añadir en la lista temporal</param>
         public void IncludeDashboardInTemporalList(Dashboard dash)
         {
-            dashboardsTemp.Add(dash);
+            _dashboardsTemp.Add(dash);
         }
 
-        public Dashboard GetDashboardFromList(String dashTitle)
+        /// <summary>
+        /// Obtiene un tablero de la lista filtrando por todo su título
+        /// </summary>
+        /// <param name="dashTitle">Nombre del tablero a buscar</param>
+        /// <returns>Tablero encontrado con ese título</returns>
+        public Dashboard GetDashboardFromList(string dashTitle)
         {
-            foreach (Dashboard dashboard in dashboards)
+            foreach (Dashboard dashboard in _dashboards)
             {
                 if (dashboard.Name == dashTitle)
                 {
@@ -412,9 +342,14 @@ namespace PictoManagementClient.Controller
             return null;
         }
 
+        /// <summary>
+        /// Obtiene un tablero de la lista filtrando por todo su contenido
+        /// </summary>
+        /// <param name="dash">Tablero a buscar en la lista definitiva</param>
+        /// <returns>Tablero encontrado con ese título y contenido</returns>
         public Dashboard GetDashboardFromList(Dashboard dash)
         {
-            foreach (Dashboard dashboard in dashboards)
+            foreach (Dashboard dashboard in _dashboards)
             {
                 if (dashboard.Name == dash.Name)
                 {

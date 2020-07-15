@@ -16,10 +16,10 @@ namespace PictoManagementClient.Controller
     /// </summary>
     public class BusinessLayer
     {
-        private IPEndPoint ipEndPoint;
-        private TcpClient tcpClient;
-        private BinaryReader binReader;
-        private BinaryWriter binWriter;
+        private IPEndPoint _ipEndPoint;
+        private TcpClient _tcpClient;
+        private BinaryReader _binReader;
+        private BinaryWriter _binWriter;
 
         /// <summary>
         /// Constructor de la clase, genera un ipEndPoint hacia el servidor
@@ -28,7 +28,7 @@ namespace PictoManagementClient.Controller
         /// <param name="newPort">Puerto en el que escucha el servidor.</param>
         public BusinessLayer(string newAddress, int newPort)
         {
-            ipEndPoint = new IPEndPoint(IPAddress.Parse(newAddress), newPort);
+            _ipEndPoint = new IPEndPoint(IPAddress.Parse(newAddress), newPort);
         }
 
         /// <summary>
@@ -36,12 +36,12 @@ namespace PictoManagementClient.Controller
         /// </summary>
         public void Connect()
         {
-            tcpClient = new TcpClient();
-            tcpClient.Connect(ipEndPoint);
-            NetworkStream netStream = tcpClient.GetStream();
+            _tcpClient = new TcpClient();
+            _tcpClient.Connect(_ipEndPoint);
+            NetworkStream netStream = _tcpClient.GetStream();
 
-            binReader = new BinaryReader(netStream);
-            binWriter = new BinaryWriter(netStream);
+            _binReader = new BinaryReader(netStream);
+            _binWriter = new BinaryWriter(netStream);
         }
 
         /// <summary>
@@ -49,8 +49,8 @@ namespace PictoManagementClient.Controller
         /// </summary>
         public void Dispose()
         {
-            tcpClient.Close();
-            tcpClient.Dispose();
+            _tcpClient.Close();
+            _tcpClient.Dispose();
         }
 
         /// <summary>
@@ -74,18 +74,14 @@ namespace PictoManagementClient.Controller
                 Request request = new Request("Get image", image);
                 byte[] sndBuffer = binCodReq.Encode(request);
 
-                binWriter.Write(sndBuffer.Length);
-                binWriter.Write(sndBuffer);
+                _binWriter.Write(sndBuffer.Length);
+                _binWriter.Write(sndBuffer);
 
-                int receiveBytes = binReader.ReadInt32();
-                byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
+                int receiveBytes = _binReader.ReadInt32();
+                byte[] receivedBuffer = _binReader.ReadBytes(receiveBytes);
                 imagesReceived[position] = binCodImage.Decode(receivedBuffer);
                 position++;
             });
-            /*foreach (string image in imagesRequested)
-            {
-                
-            }*/
             Dispose();
             return imagesReceived;
         }
@@ -100,10 +96,10 @@ namespace PictoManagementClient.Controller
             BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
             Request request = new Request("Insert dashboard", dashContent);
             byte[] sndBuffer = binCodReq.Encode(request);
-            using (binWriter)
+            using (_binWriter)
             {
-                binWriter.Write(sndBuffer.Length);
-                binWriter.Write(sndBuffer);
+                _binWriter.Write(sndBuffer.Length);
+                _binWriter.Write(sndBuffer);
             }
 
             Dispose();
@@ -124,17 +120,17 @@ namespace PictoManagementClient.Controller
             Request request = new Request("Get dashboard", dashName);
             byte[] sndBuffer = binCodReq.Encode(request);
 
-            binWriter.Write(sndBuffer.Length);
-            binWriter.Write(sndBuffer);
+            _binWriter.Write(sndBuffer.Length);
+            _binWriter.Write(sndBuffer);
 
-            int receivingDashboards = binReader.ReadInt32();
+            int receivingDashboards = _binReader.ReadInt32();
             int receiveBytes;
             List<Dashboard> dashboardList = new List<Dashboard>();
 
             for (int i = 0; i < receivingDashboards; i++)
             {
-                receiveBytes = binReader.ReadInt32();
-                byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
+                receiveBytes = _binReader.ReadInt32();
+                byte[] receivedBuffer = _binReader.ReadBytes(receiveBytes);
                 newDashboard = binCodDash.Decode(receivedBuffer);
                 dashboardList.Add(newDashboard);
             }
