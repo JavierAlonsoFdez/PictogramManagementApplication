@@ -11,7 +11,7 @@ namespace PictoManagementServer
     /// </summary>
     public class RequestProcessor
     {
-        private BinaryCodec<Request> _binaryCodec;
+        private BinaryCodecRequest _binaryCodec;
         private Request _request;
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace PictoManagementServer
         /// </summary>
         public RequestProcessor(byte[] message)
         {
-            _binaryCodec = new BinaryCodec<Request>();
+            _binaryCodec = new BinaryCodecRequest();
             DecodeMessage(message);
         }
 

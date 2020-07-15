@@ -34,23 +34,20 @@ namespace PictoManagementClient.Controller
         /// <summary>
         /// Conecta el servidor y el cliente, asigna el cliente, el stream de datos, un reader y un writer
         /// </summary>
-        public void Connect()
+        public TcpClient  Connect()
         {
-            _tcpClient = new TcpClient();
-            _tcpClient.Connect(_ipEndPoint);
-            NetworkStream netStream = _tcpClient.GetStream();
-
-            _binReader = new BinaryReader(netStream);
-            _binWriter = new BinaryWriter(netStream);
+            TcpClient tcpClient = new TcpClient();
+            tcpClient.Connect(_ipEndPoint);
+            return tcpClient;
         }
 
         /// <summary>
         /// Cierra la conexión entre el cliente y el servidor
         /// </summary>
-        public void Dispose()
+        public void Dispose(TcpClient tcpClient)
         {
-            _tcpClient.Close();
-            _tcpClient.Dispose();
+            tcpClient.Close();
+            tcpClient.Dispose();
         }
 
         /// <summary>
@@ -60,8 +57,6 @@ namespace PictoManagementClient.Controller
         /// <returns>Array con las imágenes que retorna el servidor</returns>
         public Image[] RequestImages(string[] imagesRequested)
         {
-            Connect();
-
             //BinaryCodec<Image> binCodImage = new BinaryCodec<Image>();
             //BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
             BinaryCodecRequest binCodReq = new BinaryCodecRequest();
@@ -70,19 +65,26 @@ namespace PictoManagementClient.Controller
             int position = 0;
 
             Parallel.For(0, imagesRequested.Length,new ParallelOptions { MaxDegreeOfParallelism = 4 }, (i)=>{
-                string image = imagesRequested[i];
-                Request request = new Request("Get image", image);
-                byte[] sndBuffer = binCodReq.Encode(request);
+                TcpClient tcpClient = Connect();
+                NetworkStream netStr = tcpClient.GetStream();
+                using (BinaryWriter bw = new BinaryWriter(netStr))
+                using (BinaryReader br = new BinaryReader(netStr))
+                {
+                    string image = imagesRequested[i];
+                    Request request = new Request("Get image", image);
+                    byte[] sndBuffer = binCodReq.Encode(request);
 
-                _binWriter.Write(sndBuffer.Length);
-                _binWriter.Write(sndBuffer);
+                    bw.Write(sndBuffer.Length);
+                    bw.Write(sndBuffer);
 
-                int receiveBytes = _binReader.ReadInt32();
-                byte[] receivedBuffer = _binReader.ReadBytes(receiveBytes);
-                imagesReceived[position] = binCodImage.Decode(receivedBuffer);
-                position++;
+                    int receiveBytes = br.ReadInt32();
+                    byte[] receivedBuffer = br.ReadBytes(receiveBytes);
+                    imagesReceived[position] = binCodImage.Decode(receivedBuffer);
+                    position++;
+                }
+                Dispose(tcpClient);
             });
-            Dispose();
+
             return imagesReceived;
         }
 
@@ -92,17 +94,18 @@ namespace PictoManagementClient.Controller
         /// <param name="dashContent">Contenido del tablero en formato string</param>
         public void SendDashboard(string dashContent)
         {
-            Connect();
+            TcpClient tcpClient = Connect();
+            NetworkStream netStr = tcpClient.GetStream();
             BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
             Request request = new Request("Insert dashboard", dashContent);
             byte[] sndBuffer = binCodReq.Encode(request);
-            using (_binWriter)
+            using (BinaryWriter bw = new BinaryWriter(netStr))
             {
-                _binWriter.Write(sndBuffer.Length);
-                _binWriter.Write(sndBuffer);
+                bw.Write(sndBuffer.Length);
+                bw.Write(sndBuffer);
             }
 
-            Dispose();
+            Dispose(tcpClient);
         }
 
         /// <summary>
@@ -112,31 +115,39 @@ namespace PictoManagementClient.Controller
         /// <returns>Lista de tableros cuyo título coincida con el indicado</returns>
         public List<Dashboard> GetDashboard(string dashName)
         {
-            Connect();
+            TcpClient tcpClient = Connect();
+            NetworkStream netStr = tcpClient.GetStream();
             Dashboard newDashboard;
 
             BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
             BinaryCodec<Dashboard> binCodDash = new BinaryCodec<Dashboard>();
             Request request = new Request("Get dashboard", dashName);
             byte[] sndBuffer = binCodReq.Encode(request);
-
-            _binWriter.Write(sndBuffer.Length);
-            _binWriter.Write(sndBuffer);
-
-            int receivingDashboards = _binReader.ReadInt32();
-            int receiveBytes;
             List<Dashboard> dashboardList = new List<Dashboard>();
 
-            for (int i = 0; i < receivingDashboards; i++)
+            using (BinaryWriter bw = new BinaryWriter(netStr))
+            using (BinaryReader br = new BinaryReader(netStr))
             {
-                receiveBytes = _binReader.ReadInt32();
-                byte[] receivedBuffer = _binReader.ReadBytes(receiveBytes);
-                newDashboard = binCodDash.Decode(receivedBuffer);
-                dashboardList.Add(newDashboard);
+
+            
+
+                bw.Write(sndBuffer.Length);
+                bw.Write(sndBuffer);
+
+                int receivingDashboards = br.ReadInt32();
+                int receiveBytes;
+                
+
+                for (int i = 0; i < receivingDashboards; i++)
+                {
+                    receiveBytes = br.ReadInt32();
+                    byte[] receivedBuffer = br.ReadBytes(receiveBytes);
+                    newDashboard = binCodDash.Decode(receivedBuffer);
+                    dashboardList.Add(newDashboard);
+                }
             }
-
-            Dispose();
-
+            Dispose(tcpClient);
+            
             return dashboardList;
         }
     }

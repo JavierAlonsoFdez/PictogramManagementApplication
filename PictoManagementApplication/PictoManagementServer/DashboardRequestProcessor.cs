@@ -133,7 +133,7 @@ namespace PictoManagementServer
         /// <param name="dashboardImages">Imágenes que componen el dashboard</param>
         public void InsertDataIntoDashboards (string dashboardName, string dashboardImages)
         {
-            string query = "INSERT INTO Dashboards (Name, Images) VALUES (@title, @images)";
+            string query = "INSERT INTO Dashboards (Title, Images) VALUES (@title, @images)";
 
             using (_sqlConnection)
             using (SqlCommand command = new SqlCommand(query, _sqlConnection))
