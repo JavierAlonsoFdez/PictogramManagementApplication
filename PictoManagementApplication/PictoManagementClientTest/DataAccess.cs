@@ -62,7 +62,7 @@ namespace PictoManagementClientTest
 
             foreach (Dashboard dashboard in dashboards)
             {
-                if (dashboard.Title == dashboardName)
+                if (dashboard.Name == dashboardName)
                 {
                     imagesName = new string[dashboard.Images.Length];
                     int i = 0;
@@ -118,7 +118,7 @@ namespace PictoManagementClientTest
                 Image newImage = new Image(img.Title, ConfigDictionary["Images"] + img.Title + ".png");
                 newImagesList.Add(newImage);
             }
-            return new Dashboard(dashboard.Title, newImagesList.ToArray());
+            return new Dashboard(dashboard.Name, newImagesList.ToArray());
         }
 
         public void SaveNewImage(string newTitle, string FileBase64)

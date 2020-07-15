@@ -38,7 +38,18 @@ namespace PictoManagementServer
 
             for (int i = 1; i < requestSplitted.Length; i++)
             {
-                if (File.Exists("C:\\Users\\Desktop Javier\\Desktop\\Server\\" + requestSplitted[i] + ".png"))
+                string path = "D:\\Aplicaciones\\PictoManagementServer\\Images\\";
+                if (requestSplitted[i].Length >= 2)
+                {
+                    string firstLetter = requestSplitted[i].Substring(0, 1);
+                    string secondLetter = requestSplitted[i].Substring(1, 1);
+                    path += firstLetter + "\\" + secondLetter + "\\" + requestSplitted[i] + ".png";
+                }
+                else
+                {
+                    path += requestSplitted[i] + ".png";
+                }
+                if (File.Exists(path))
                     images += requestSplitted[i] + ",";
             }
 
@@ -83,7 +94,14 @@ namespace PictoManagementServer
 
                             foreach (string img in images)
                             {
-                                string imgPath = "C:\\Users\\Desktop Javier\\Desktop\\Server\\" + img + ".png";
+                                string directoryPath = "D:\\Aplicaciones\\PictoManagementServer\\Images\\";
+                                if (img.Length >= 2)
+                                {
+                                    string firstLetter = img.Substring(0, 1);
+                                    string secondLetter = img.Substring(1, 1);
+                                    directoryPath = "D:\\Aplicaciones\\PictoManagementServer\\Images\\" + firstLetter + "\\" + secondLetter + "\\";
+                                }
+                                string imgPath = directoryPath + img + ".png";
                                 if (File.Exists(imgPath))
                                 {
                                     imagesList.Add(new Image(img, imgPath));
@@ -115,7 +133,7 @@ namespace PictoManagementServer
         /// <param name="dashboardImages">Imágenes que componen el dashboard</param>
         public void InsertDataIntoDashboards (string dashboardName, string dashboardImages)
         {
-            string query = "INSERT INTO Dashboards (Title, Images) VALUES (@title, @images)";
+            string query = "INSERT INTO Dashboards (Name, Images) VALUES (@title, @images)";
 
             using (_sqlConnection)
             using (SqlCommand command = new SqlCommand(query, _sqlConnection))

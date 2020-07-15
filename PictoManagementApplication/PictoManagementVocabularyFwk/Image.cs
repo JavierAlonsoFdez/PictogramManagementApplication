@@ -7,7 +7,7 @@ namespace PictoManagementVocabulary
     /// <summary>
     /// Objeto imagen serializable compuesto de un título y una ruta
     /// </summary>
-    [Serializable()]
+    [Serializable]
     public class Image
     {
         private string _title;

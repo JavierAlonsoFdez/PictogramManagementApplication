@@ -38,7 +38,7 @@ namespace PictoManagementClientTest
                     case "1":
                         Console.WriteLine("Ha seleccionado recibir una imagen de prueba.");
                         string[] imagesRequested = new string[1];
-                        imagesRequested[0] = "TestFoto";
+                        imagesRequested[0] = "abuela";
                         Image[] imagesReceived = businessLayer.RequestImages(imagesRequested);
                         foreach (Image img in imagesReceived)
                         {

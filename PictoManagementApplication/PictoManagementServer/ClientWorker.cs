@@ -112,13 +112,16 @@ namespace PictoManagementServer
             List<Dashboard> dashboardList = dashboardProcessor.GetDataFromDashboard(bodyOfRequest);
             BinaryCodec<Dashboard> dashBinCod = new BinaryCodec<Dashboard>();
 
-            binWriter.Write(dashboardList.Count);
-
-            foreach (Dashboard dashboardToSend in dashboardList)
+            if (dashboardList != null)
             {
-                byte[] sndBuffer = dashBinCod.Encode(dashboardToSend);
-                binWriter.Write(sndBuffer.Length);
-                binWriter.Write(sndBuffer);
+                binWriter.Write(dashboardList.Count);
+
+                foreach (Dashboard dashboardToSend in dashboardList)
+                {
+                    byte[] sndBuffer = dashBinCod.Encode(dashboardToSend);
+                    binWriter.Write(sndBuffer.Length);
+                    binWriter.Write(sndBuffer);
+                }
             }
         }
 

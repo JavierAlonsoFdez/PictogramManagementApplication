@@ -13,7 +13,7 @@ namespace PictoManagementVocabularyUnitTest
             Image[] images = new Image[3];
             for (int i = 0; i < 3; i++)
             {
-                Image image = new Image("Title-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
+                Image image = new Image("Name-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
                 images[i] = image;
             }
             Dashboard dashboard = new Dashboard("Test dashboard", images);
@@ -23,7 +23,7 @@ namespace PictoManagementVocabularyUnitTest
 
             Dashboard dashDecod = binCod.Decode(dashCod);
 
-            Assert.AreEqual(dashboard.Title, dashDecod.Title);
+            Assert.AreEqual(dashboard.Name, dashDecod.Name);
         }
 
         [TestMethod]
@@ -32,7 +32,7 @@ namespace PictoManagementVocabularyUnitTest
             Image[] images = new Image[3];
             for (int i = 0; i < 3; i++)
             {
-                Image image = new Image("Title-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
+                Image image = new Image("Name-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
                 images[i] = image;
             }
             Dashboard dashboard = new Dashboard("", images);
@@ -42,7 +42,7 @@ namespace PictoManagementVocabularyUnitTest
 
             Dashboard dashDecod = binCod.Decode(dashCod);
 
-            Assert.AreEqual(dashboard.Title, dashDecod.Title);
+            Assert.AreEqual(dashboard.Name, dashDecod.Name);
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace PictoManagementVocabularyUnitTest
             Image[] images = new Image[3];
             for (int i = 0; i < 3; i++)
             {
-                Image image = new Image("Title-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
+                Image image = new Image("Name-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
                 images[i] = image;
             }
             Dashboard dashboard = new Dashboard("Test dashboard", images);
@@ -71,7 +71,7 @@ namespace PictoManagementVocabularyUnitTest
             Image[] images = new Image[3];
             for (int i = 0; i < 3; i++)
             {
-                Image image = new Image("Title-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
+                Image image = new Image("Name-" + i, "C:\\Users\\Desktop Javier\\Desktop\\TestFoto.png");
                 images[i] = image;
             }
             Dashboard dashboard = new Dashboard("Test dashboard", images);

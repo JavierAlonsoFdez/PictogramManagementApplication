@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PictoManagementClient"
         mc:Ignorable="d"
-        Title="PictoManagement Application" Height="589.091" Width="800">
+        Title="PictoManagement Application" Height="846" Width="800"
+        ResizeMode="CanMinimize" Closing="Window_Closing">
     <Grid>
-        <TabControl TabStripPlacement="Top">
+        <TabControl TabStripPlacement="Top" Margin="0,0,0,-286" Height="846" VerticalAlignment="Top">
             <TabItem Header="Búsqueda">
                 <Grid Margin="30,20">
                     <Label Content="Búsqueda" HorizontalAlignment="Left" Margin="90,21,0,0" VerticalAlignment="Top" Width="69"/>
@@ -15,7 +16,7 @@
                     <Button Content="Buscar" HorizontalAlignment="Left" Margin="480,21,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="MainSearch_Click" RenderTransformOrigin="0.395,-0.169"/>
                     <CheckBox x:Name="ImagesOrDashboards" Content="Tableros" Margin="90,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                     <Label Content="Resultados" HorizontalAlignment="Left" Margin="90,70,0,0" VerticalAlignment="Top" Width="480" HorizontalContentAlignment="Center"/>
-                    <ListView Margin="90,98,155,70" x:Name="list_Images" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
+                    <ListView Margin="89,98,59,362" x:Name="list_Images" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
                         <ListView.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -26,19 +27,21 @@
                         </ListView.RenderTransform>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Título" Width="60" DisplayMemberBinding="{Binding name}"/>
-                                <GridViewColumn Header="Vista Previa" Width="425">
+                                <GridViewColumn Header="Título" Width="120" DisplayMemberBinding="{Binding Title}"/>
+                                <GridViewColumn Header="Vista Previa" Width="450">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding image}" Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
-
+                    <Image HorizontalAlignment="Left" Height="69" Margin="533,699,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
+                    <Border BorderBrush="Black" BorderThickness="1" Margin="90,446,138,82">
+                        <Canvas x:Name="searchCanvas" Margin="0,0,-2,-2"/>
+                    </Border>
                 </Grid>
             </TabItem>
 
@@ -49,7 +52,7 @@
                     <Label Content="Pictogramas" HorizontalAlignment="Left" Margin="90,84,0,0" VerticalAlignment="Top" Width="90"/>
                     <TextBox Name="ImagesSearchbox" HorizontalAlignment="Left" Height="26" Margin="185,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="338"/>
                     <Button Content="Buscar" HorizontalAlignment="Left" Margin="528,84,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="NewImagesDashboard_Click"/>
-                    <ListView Margin="90,128,109,71" x:Name="images_forNewDashboard" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
+                    <ListView Margin="89,128,110,412" x:Name="images_forNewDashboard" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
                         <ListView.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -60,18 +63,18 @@
                         </ListView.RenderTransform>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding name}"/>
+                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding Title}"/>
                                 <GridViewColumn Header="Vista Previa" Width="335">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding image}" Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Header="Incluir" Width="100">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsThreeState="False" IsChecked="{Binding isIncluded.IsChecked}" Content="{Binding isIncluded.Content}"/>
+                                            <CheckBox IsThreeState="False" IsChecked="{Binding IsIncluded.IsChecked}" Content="{Binding IsIncluded.Content}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -81,6 +84,9 @@
                     <CheckBox Name="ShareNewDashboard" Content="Compartir" HorizontalAlignment="Left" Margin="90,391,0,0" VerticalAlignment="Top"/>
                     <Button Name="CreateDashboardButton" Content="Crear" HorizontalAlignment="Left" Margin="90,411,0,0" VerticalAlignment="Top" Width="90" Click="CreateNewDashboard_Click" IsEnabled="False"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
+                    <Border BorderBrush="Black" BorderThickness="1" Margin="90,446,138,82">
+                        <Canvas x:Name="canvasCreateZero" Margin="0,0,-2,-2"/>
+                    </Border>
                 </Grid>
             </TabItem>
 
@@ -94,7 +100,7 @@
                     <Button Name="SearchingImagesForExistingDashboard" Content="Buscar" HorizontalAlignment="Left" Margin="528,84,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="NewImagesExistingDashboard_Click" IsEnabled="False"/>
                     <Label Content="Titulo" HorizontalAlignment="Left" Margin="90,115,0,0" VerticalAlignment="Top" Width="90" RenderTransformOrigin="0.562,2.084"/>
                     <TextBox Name="DashboardTitle" HorizontalAlignment="Left" Height="26" Margin="185,115,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="338"/>
-                    <ListView Margin="90,167,109,73" x:Name="dashboards_fromServer" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
+                    <ListView Margin="89,167,110,370" x:Name="dashboards_fromServer" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
                         <ListView.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -105,18 +111,18 @@
                         </ListView.RenderTransform>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding name}"/>
+                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding Title}"/>
                                 <GridViewColumn Header="Vista Previa" Width="335">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding image}" Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Header="Incluir" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsChecked="{Binding isIncluded}"/>
+                                            <CheckBox IsThreeState="False" IsChecked="{Binding IsIncluded.IsChecked}" Content="{Binding IsIncluded.Content}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -126,6 +132,9 @@
                     <Button Name="EditSelectedDashboard" Content="Editar" HorizontalAlignment="Left" Margin="90,454,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="EditSelectedDashboard_Click" RenderTransformOrigin="0.513,2.326" IsEnabled="False"/>
                     <Button Name="SaveSelectedDashboard" Content="Guardar" HorizontalAlignment="Left" Margin="185,454,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SaveSelectedDashboard_Click" IsEnabled="False"/>
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,411,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Width="500" Margin="90,498,0,30">
+                        <Canvas x:Name="canvasCreateExisting" Margin="0,0,-2,-2"/>
+                    </Border>
                 </Grid>
             </TabItem>
 
@@ -137,7 +146,7 @@
                     <Label Content="Imagen" HorizontalAlignment="Left" Margin="90,70,0,0" VerticalAlignment="Top" Width="60"/>
                     <TextBox Name="NewImageModifySearchbox" HorizontalAlignment="Left" Height="26" Margin="155,70,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
                     <Button Name="SearchImagesModifying" Content="Buscar Imagen" HorizontalAlignment="Left" Margin="480,70,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SearchImagesModifying_Click" IsEnabled="False"/>
-                    <ListView Margin="94,169,105,75" x:Name="dashboard_andImages" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
+                    <ListView Margin="93,169,106,380" x:Name="dashboard_andImages" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
                         <ListView.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -148,18 +157,18 @@
                         </ListView.RenderTransform>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding name}"/>
+                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding Title}"/>
                                 <GridViewColumn Header="Vista Previa" Width="335">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding image}" Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Header="Incluir" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsChecked="{Binding isIncluded}" />
+                                            <CheckBox IsThreeState="False" IsChecked="{Binding IsIncluded.IsChecked}" Content="{Binding IsIncluded.Content}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -171,13 +180,16 @@
                     <Image HorizontalAlignment="Left" Height="69" Margin="531,411,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                     <Label Content="Título" HorizontalAlignment="Left" Margin="90,101,0,0" VerticalAlignment="Top" Width="60"/>
                     <TextBox x:Name="ModifiedTitle" HorizontalAlignment="Left" Height="26" Margin="155,101,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="320" Uid="TableroBusqueda"/>
+                    <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="250" Width="500" VerticalAlignment="Top" Margin="90,485,0,0">
+                        <Canvas x:Name="canvasModify" Margin="0,0,-2,-2"/>
+                    </Border>
                 </Grid>
             </TabItem>
 
             <TabItem Header="Tableros Existentes">
                 <Grid Margin="30,20">
                     <Label Content="Tus Tableros" HorizontalAlignment="Left" Margin="90,39,0,0" VerticalAlignment="Top" Width="480" HorizontalContentAlignment="Center"/>
-                    <ListView Margin="91,73,108,105" x:Name="own_Dashboards" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
+                    <ListView Margin="91,73,108,126" x:Name="own_Dashboards" BorderBrush="{x:Null}" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="True" IsTextSearchEnabled="False" TextOptions.TextFormattingMode="Display" Foreground="Black" SelectionMode="Single">
                         <ListView.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -188,19 +200,19 @@
                         </ListView.RenderTransform>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding name}"/>
+                                <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding Title}"/>
                                 <GridViewColumn Header="Vista Previa" Width="425">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding image}" Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <Button Content="Ver" HorizontalAlignment="Left" Margin="90,390,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SeeMyDashboards_Click" RenderTransformOrigin="0.48,1.871"/>
-                    <Image HorizontalAlignment="Left" Height="69" Margin="531,372,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
+                    <Button Content="Ver" HorizontalAlignment="Left" Margin="90,684,0,0" VerticalAlignment="Top" Width="90" Height="26" Click="SeeMyDashboards_Click" RenderTransformOrigin="0.48,1.871"/>
+                    <Image HorizontalAlignment="Left" Height="69" Margin="533,684,0,0" VerticalAlignment="Top" Width="185" Source="Image/arasaac.png"/>
                 </Grid>
             </TabItem>
         </TabControl>

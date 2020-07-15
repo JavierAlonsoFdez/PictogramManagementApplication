@@ -32,15 +32,31 @@ namespace PictoManagementServer
 
             foreach (string img in imagesArray)
             {
-                string firstLetter = img.Substring(0, 1);
-                string secondLetter = img.Substring(1, 1);
-                string[] files = Directory.GetFiles("C:\\Program Files\\PictoManagementApplication\\Images\\" + firstLetter + "\\" + secondLetter + "\\");
-                foreach (string file in files)
+                if (img.Length >= 2)
                 {
-                    string filename = file.Split("C:\\Program Files\\PictoManagementApplication\\Images\\ "+ firstLetter + "\\" + secondLetter + "\\")[1];
-                    if (filename.Contains(img))
+                    string firstLetter = img.Substring(0, 1);
+                    string secondLetter = img.Substring(1, 1);
+                    string[] files = Directory.GetFiles("D:\\Aplicaciones\\PictoManagementServer\\Images\\" + firstLetter + "\\" + secondLetter + "\\");
+                    foreach (string file in files)
                     {
-                        _imageList.Add(new Image(img, file));
+                        string filename = file.Split("D:\\Aplicaciones\\PictoManagementServer\\Images\\ " + firstLetter + "\\" + secondLetter + "\\")[0];
+                        if (filename.Contains(img))
+                        {
+                            _imageList.Add(new Image(img, file));
+                        }
+                    }
+                }
+
+                else
+                {
+                    string[] files = Directory.GetFiles("D:\\Aplicaciones\\PictoManagementServer\\Images\\");
+                    foreach (string file in files)
+                    {
+                        string filename = file.Split("D:\\Aplicaciones\\PictoManagementServer\\Images\\")[1];
+                        if (filename.Contains(img))
+                        {
+                            _imageList.Add(new Image(img, file));
+                        }
                     }
                 }
             }

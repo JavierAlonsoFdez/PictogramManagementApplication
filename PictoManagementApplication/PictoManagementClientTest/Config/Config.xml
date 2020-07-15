@@ -2,6 +2,9 @@
 <Config>
   <Address>127.0.0.1</Address>
   <Port>12000</Port>
-  <Dashboards>C:\Users\Desktop Javier\Desktop\Client\Dashboards.json</Dashboards>
-  <Images>C:\Users\Desktop Javier\Desktop\Client\</Images>
+  <Dashboards>D:\Aplicaciones\PictoManagementApplication\Dashboards.json</Dashboards>
+  <DashboardsFolder>D:\Aplicaciones\PictoManagementApplication\Dashboards\</DashboardsFolder>
+  <DashboardsTemp>D:\Aplicaciones\PictoManagementApplication\DashboardsTemp\</DashboardsTemp>
+  <Images>D:\Aplicaciones\PictoManagementApplication\Client\</Images>
+  <Temp>D:\Aplicaciones\PictoManagementApplication\ClientTemp\</Temp>
 </Config>

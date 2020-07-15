@@ -57,7 +57,7 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PictoManagementVocabulary">
-      <HintPath>..\PictoManagementVocabulary\bin\Debug\netcoreapp2.1\PictoManagementVocabulary.dll</HintPath>
+      <HintPath>..\PictoManagementVocabularyFwk\bin\Debug\netstandard2.0\PictoManagementVocabulary.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -90,13 +90,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controller\BusinessLayer.cs" />
-    <Compile Include="DataAccessLayer\DataAccess.cs" />
+    <Compile Include="Controller\DataAccess.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\ImageItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -123,7 +124,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="Image\arasaac.png" />
   </ItemGroup>

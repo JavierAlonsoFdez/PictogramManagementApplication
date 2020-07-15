@@ -21,7 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PictoManagementVocabulary\PictoManagementVocabulary.csproj" />
+    <Reference Include="PictoManagementVocabulary">
+      <HintPath>..\PictoManagementVocabulary\bin\Debug\netcoreapp2.1\PictoManagementVocabulary.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

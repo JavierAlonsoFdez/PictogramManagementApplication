@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using PictoManagementVocabulary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -22,12 +23,13 @@ namespace PictoManagementClient
     /// </summary>
     public partial class MainWindow : Window
     {
-        DataAccessLayer.DataAccess dataAccess;
+        Controller.DataAccess dataAccess;
+        private Dashboard _dashboardInUse;
 
         public MainWindow()
         {
             InitializeComponent();
-            dataAccess = new DataAccessLayer.DataAccess();
+            dataAccess = new Controller.DataAccess();
         }
 
         /// <summary>
@@ -35,15 +37,23 @@ namespace PictoManagementClient
         /// </summary>
         /// <param name="requestedImages">Array con el titulo de las imagenes a buscar</param>
         /// <returns>Lista de objetos con las imagenes</returns>
-        private List<ImageItem> SearchForImagesLocally(string[] requestedImages)
+        private List<Model.ImageItem> SearchForImagesLocally(string[] requestedImages)
         {
-            List<ImageItem> localImages = new List<ImageItem>();
+            List<Model.ImageItem> localImages = new List<Model.ImageItem>();
             foreach (string img in requestedImages)
             {
                 string searchPath = dataAccess.ConfigDictionary["Images"] + img + ".png";
                 if (File.Exists(searchPath))
                 {
-                    localImages.Add(new ImageItem(img, searchPath, false));
+                    localImages.Add(new Model.ImageItem(img, searchPath, false));
+                }
+                else
+                {
+                    string searchTemporalPath = dataAccess.ConfigDictionary["Temp"] + img + ".png";
+                    if (File.Exists(searchTemporalPath))
+                    {
+                        localImages.Add(new Model.ImageItem(img, searchTemporalPath, false));
+                    }
                 }
             }
 
@@ -56,9 +66,9 @@ namespace PictoManagementClient
         /// <param name="businessLayer">Controlador de negocio</param>
         /// <param name="images">Array de imagenes a buscar</param>
         /// <returns>Lista de imagenes a mostrar en la lista</returns>
-        private List<ImageItem> SearchForImagesInServer(Controller.BusinessLayer businessLayer, string[] images)
+        private List<Model.ImageItem> SearchForImagesInServer(Controller.BusinessLayer businessLayer, string[] images)
         {
-            List<ImageItem> serverImages = new List<ImageItem>();
+            List<Model.ImageItem> serverImages = new List<Model.ImageItem>();
             PictoManagementVocabulary.Image[] imagesFromServer = businessLayer.RequestImages(images);
 
             foreach (PictoManagementVocabulary.Image img in imagesFromServer)
@@ -67,7 +77,7 @@ namespace PictoManagementClient
                 string imgPath = dataAccess.ConfigDictionary["Temp"] + img.Title + ".png";
                 if (File.Exists(imgPath))
                 {
-                    serverImages.Add(new ImageItem(img.Title, imgPath, false));
+                    serverImages.Add(new Model.ImageItem(img.Title, imgPath, false));
                 }
             }
 
@@ -79,18 +89,21 @@ namespace PictoManagementClient
         /// </summary>
         /// <param name="dashboardNames">Array con el contenido a buscar</param>
         /// <returns>Lista de resultados encontrados</returns>
-        private List<ImageItem> SearchForDashboardLocally(string[] dashboardNames)
+        private void SearchForDashboardLocally(ref List<Model.ImageItem> dashboardList,string[] dashboardNames)
         {
-            List<ImageItem> dashboardImages = new List<ImageItem>();
+            List<Model.ImageItem> dashboardImages = new List<Model.ImageItem>();
             List<Dashboard> dashboardsResult = new List<Dashboard>();
 
             foreach (string dashboardName in dashboardNames)
             {
-                Dashboard dashboard = dataAccess.GetDashboardByName(dashboardName);
 
-                if (dashboard != null)
+                string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + dashboardName + ".png";
+                //Dashboard dashboard = dataAccess.GetDashboardByName(dashboardName);
+
+                //if (dashboard != null)
+                if (File.Exists(dashboardPath))
                 {
-                    dashboardsResult.Add(dashboard);
+                    dashboardImages.Add(new Model.ImageItem(dashboardName, dashboardPath, false));
                 }
                 else
                 {
@@ -106,14 +119,13 @@ namespace PictoManagementClient
             {
                 foreach (Dashboard dash in dashboardsResult)
                 {
-                    string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + dash.Title + ".png";
-                    dashboardImages.Add(new ImageItem(dash.Title, dashboardPath, false));
+                    string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + dash.Name + ".png";
+                    dashboardImages.Add(new Model.ImageItem(dash.Name, dashboardPath, false));
                 }
-
-                return dashboardImages;
             }
 
-            return null;
+            if (dashboardImages.Count() > 0)
+                dashboardList.AddRange(dashboardImages);
         }
 
         /// <summary>
@@ -122,9 +134,10 @@ namespace PictoManagementClient
         /// <param name="businessLayer">Controlador de negocio</param>
         /// <param name="dashboardNames">Array con el nombre de los tableros buscados</param>
         /// <returns>Retorna una lista con las vistas previas del tablero</returns>
-        private List<ImageItem> SearchForDashboardInServer(Controller.BusinessLayer businessLayer, string[] dashboardNames)
+        private void SearchForDashboardInServer(ref List<Model.ImageItem> dashboardList, Controller.BusinessLayer businessLayer, 
+            string[] dashboardNames, Canvas canvas)
         {
-            List<ImageItem> dashboardImages = new List<ImageItem>();
+            List<Model.ImageItem> dashboardImages = new List<Model.ImageItem>();
             List<Dashboard> dashboardsToProcess = new List<Dashboard>();
             List<Dashboard> dashboardsResult = new List<Dashboard>();
 
@@ -134,7 +147,6 @@ namespace PictoManagementClient
                 foreach (Dashboard dashboard in dashboardsToProcess)
                 {
                     SaveImagesFromDashboard(businessLayer, dashboard);
-
                 }
                 dashboardsResult.AddRange(dashboardsToProcess);
                 dashboardsToProcess = new List<Dashboard>();
@@ -142,12 +154,27 @@ namespace PictoManagementClient
 
             foreach (Dashboard dash in dashboardsResult)
             {
-                // TODO: Crear imagen en el archivo temporal de dashboards
-                string dashboardPath = dataAccess.ConfigDictionary["DashboardsTemp"] + dash.Title + ".png";
-                dashboardImages.Add(new ImageItem(dash.Title, dashboardPath, false));
-            }
+                List<string> images = new List<string>();
+                List<Model.ImageItem> imagesInDashboard = new List<Model.ImageItem>();
 
-            return dashboardImages;
+                foreach (PictoManagementVocabulary.Image image in dash.Images)
+                {
+                    images.Add(image.Title);
+                }
+                string[] imgArray = images.ToArray();
+                SearchImages(ref imagesInDashboard, imgArray);
+
+                CreateDashboard(imagesInDashboard, canvas);
+                SaveDashboardFromCanvas(canvas, dash.Name, true);
+                dataAccess.IncludeDashboardInTemporalList(dash);
+
+                string dashboardPath = dataAccess.ConfigDictionary["DashboardsTemp"] + dash.Name + ".png";
+                dashboardImages.Add(new Model.ImageItem(dash.Name, dashboardPath, false));
+            }
+            if (dashboardImages != null)
+            {
+                dashboardList.AddRange(dashboardImages);
+            }
         }
 
         /// <summary>
@@ -161,7 +188,7 @@ namespace PictoManagementClient
             {
                 string[] title = new string[1];
                 title[0] = image.Title;
-                List<ImageItem> imageItems = new List<ImageItem>(); SearchForImagesLocally(title);
+                List<Model.ImageItem> imageItems = SearchForImagesLocally(title);
                 if (imageItems.Count > 0)
                 {
                     continue;
@@ -179,13 +206,13 @@ namespace PictoManagementClient
         /// <param name="list">Lista con los elementos ya buscados</param>
         /// <param name="requestedImages">Elementos a buscar</param>
         /// <returns>Array con los elementos que aun no se han encontrado</returns>
-        private string[] leftImages(List<ImageItem> list, string[] requestedImages)
+        private string[] LeftImages(List<Model.ImageItem> list, string[] requestedImages)
         {
-            foreach (ImageItem item in list)
+            foreach (Model.ImageItem item in list)
             {
-                if (requestedImages.Contains(item.title))
+                if (requestedImages.Contains(item.Title))
                 {
-                    int aux = Array.IndexOf(requestedImages, item.title);
+                    int aux = Array.IndexOf(requestedImages, item.Title);
                     requestedImages = requestedImages.Where(w => w != requestedImages[aux]).ToArray();
                 }
             }
@@ -197,10 +224,10 @@ namespace PictoManagementClient
             return null;
         }
 
-        private void SearchImages (ref List<ImageItem> itemsToShow, string[] search)
+        private void SearchImages (ref List<Model.ImageItem> itemsToShow, string[] search)
         {
             itemsToShow.AddRange(SearchForImagesLocally(search));
-            string[] searchServer = leftImages(itemsToShow, search);
+            string[] searchServer = LeftImages(itemsToShow, search);
             if (searchServer != null)
             {
                 try
@@ -208,11 +235,14 @@ namespace PictoManagementClient
                     Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
                         Int32.Parse(dataAccess.ConfigDictionary["Port"]));
                     itemsToShow.AddRange(SearchForImagesInServer(businessLayer, searchServer));
-                }
-                // Aqui quizas seria mejor mostrar un mensaje Toast
-                catch (Exception exc)
+                }  
+                catch
                 {
-                    throw exc;
+                    string messageText = "No es posible conectarse con el servidor";
+                    string caption = "No hay conexion";
+                    MessageBoxButton button = MessageBoxButton.OK;
+                    MessageBoxImage icon = MessageBoxImage.Warning;
+                    MessageBox.Show(messageText, caption, button, icon);
                 }
             }
         }
@@ -226,20 +256,25 @@ namespace PictoManagementClient
             {
                 search = searchText.Split(',');
             }
-            else
+            else if (searchText.Contains(" "))
             {
                 search = searchText.Split(' ');
+            }
+            else
+            {
+                search = new string[1];
+                search[0] = searchText;
             }
 
             return search;
         }
 
-        public void PrepareDashboardForServer(string title, List<ImageItem> imagesToDashboard)
+        public void PrepareDashboardForServer(string title, List<Model.ImageItem> imagesToDashboard)
         {
-            string dashboardRequest = title + ",";
-            foreach (ImageItem imageItem in imagesToDashboard)
+            string dashboardRequest = title;
+            foreach (Model.ImageItem imageItem in imagesToDashboard)
             {
-                dashboardRequest = dashboardRequest + "," + imageItem.title;
+                dashboardRequest = dashboardRequest + "," + imageItem.Title;
             }
 
             try
@@ -263,45 +298,58 @@ namespace PictoManagementClient
             return dataAccess.GetDashboardFromTemporalList(title);
         }
 
-        public List<ImageItem> GetAllDashboards()
+        public List<Model.ImageItem> GetAllDashboards()
         {
-            List<ImageItem> imageItems = new List<ImageItem>();
-            foreach (Dashboard dashboard in dataAccess.Dashboards)
+            List<Model.ImageItem> imageItems = new List<Model.ImageItem>();
+            foreach(string dashboard in Directory.GetFiles(dataAccess.ConfigDictionary["DashboardsFolder"]))
             {
-                string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + dashboard.Title + ".png";
-                string secondaryDashboardPath = dataAccess.ConfigDictionary["DashboardsTemp"] + dashboard.Title + ".png";
-                if (File.Exists(dashboardPath))
-                {
-                    imageItems.Add(new ImageItem(dashboard.Title, dashboardPath, false));
-                }
-                else if (File.Exists(secondaryDashboardPath))
-                {
-                    imageItems.Add(new ImageItem(dashboard.Title, secondaryDashboardPath, false));
-                }
+                int indexOfFolder = dataAccess.ConfigDictionary["DashboardsFolder"].Length;
+                string fileName = dashboard.Substring(indexOfFolder);
+                string fileTitle = fileName.Split('.')[0];
+
+                imageItems.Add(new Model.ImageItem(fileTitle, dashboard, false));
             }
+            
 
             return imageItems;
         }
 
-        public void CreateDashboard(List<ImageItem> imageItems, Canvas canvas)
+        public void CreateDashboard(List<Model.ImageItem> imageItems, Canvas canvas)
         {
             Canvas myCanvas = canvas;
+            canvas.Opacity = 0;
             int numColumns = 5;
-            int numRows = 3;
+            int numRows;
+
+            if (imageItems.Count < 16)
+            {
+                numRows = 3;
+            }
+            else
+            {
+                numRows = 5;
+            }
+
             double left;
             double top;
             left = 0;
             top = 0;
 
-            for (int i = 0; i < (numColumns * numRows); i++)
+            for (int i = 0; i < imageItems.Count; i++)
             {
-                System.Windows.Shapes.Rectangle rectangle = new System.Windows.Shapes.Rectangle();
-                rectangle.Stretch = Stretch.Uniform;
-                rectangle.Width = myCanvas.ActualWidth / numColumns;
-                rectangle.Height = myCanvas.ActualHeight / numRows;
+                string img = imageItems[i].Image;
+
+                Rectangle rectangle = new Rectangle
+                {
+                    Stretch = Stretch.Uniform,
+                    Width = myCanvas.ActualWidth / numColumns,
+                    Height = myCanvas.ActualHeight / numRows
+                };
+
                 ImageBrush brush = new ImageBrush
                 {
-                    ImageSource = new BitmapImage(new Uri(imageItems[i].image, UriKind.Absolute))
+                    
+                    ImageSource = new BitmapImage(new Uri(img, UriKind.Absolute))
                 };
                 brush.Stretch = Stretch.Uniform;
                 brush.Freeze();
@@ -315,11 +363,16 @@ namespace PictoManagementClient
                 Canvas.SetTop(rectangle, top);
                 myCanvas.Children.Add(rectangle);
                 left += rectangle.Width;
+
+                dataAccess.MoveImageFromTempToDestination(imageItems[i].Title);
             }
+
+            canvas.Opacity = 1;
         }
 
-        public void SaveDashboardFromCanvas(Canvas myCanvas, string filename)
+        public void SaveDashboardFromCanvas(Canvas myCanvas, string filename, Boolean temp)
         {
+            myCanvas.Opacity = 1;
             double dpi = 96;
             RenderTargetBitmap rtb = new RenderTargetBitmap((int)(myCanvas.ActualWidth * dpi / 96.0),
                                                             (int)(myCanvas.ActualHeight * dpi / 96.0),
@@ -330,12 +383,33 @@ namespace PictoManagementClient
             PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
             pngBitmapEncoder.Frames.Add(BitmapFrame.Create(rtb));
 
-            using (FileStream fs = File.OpenWrite(String.Format(filename)))
+            string filePath = "";
+
+            if (temp)
+            {
+                filePath = dataAccess.ConfigDictionary["DashboardsTemp"] + filename + ".png";
+            }
+            else
+            {
+                filePath = dataAccess.ConfigDictionary["DashboardsFolder"] + filename + ".png";
+            }
+
+            int aux = 0;
+
+            while (File.Exists(filePath))
+            {
+                filePath = dataAccess.ConfigDictionary["DashboardsFolder"] + filename + aux + ".png";
+                aux++;
+            }
+
+            using (FileStream fs = File.OpenWrite(String.Format(filePath)))
             {
                 pngBitmapEncoder.Save(fs);
                 fs.Flush();
                 fs.Close();
             }
+
+            myCanvas.Children.Clear();
         }
 
         /* --- 
@@ -353,34 +427,24 @@ namespace PictoManagementClient
             string searchText = MainSearchbox.Text;
             string[] search = PrepareTextForSearching(searchText);
             
-            List<ImageItem> itemsToShow = new List<ImageItem>();
+            List<Model.ImageItem> itemsToShow = new List<Model.ImageItem>();
 
-            // Si el checkbox está checkeado, se buscan dashboards
             if (ImagesOrDashboards.IsChecked == true)
             {
-                itemsToShow.AddRange(SearchForDashboardLocally(search));
-                try
-                {
-                    Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
-                            Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                    itemsToShow.AddRange(SearchForDashboardInServer(businessLayer, search));
-                }
-                // Aqui quizas seria mejor mostrar un mensaje Toast
-                catch (Exception exc)
-                {
-                    throw exc;
-                }
+                SearchForDashboardLocally(ref itemsToShow, search);
             }
             // Si el checkbox no está checkeado, se buscan imagenes
             else
             {
                 SearchImages(ref itemsToShow, search);
             }
-
-            itemsToShow = itemsToShow.OrderBy(o => o.title).ToList();
+                
+            itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
             list_Images.ItemsSource = itemsToShow;
 
             MainSearchbox.Text = "";
+                
+            // Si el checkbox está checkeado, se buscan dashboards
         }
 
         /*  ------------ CREAR TABLERO DESDE CERO ------------ */
@@ -391,25 +455,25 @@ namespace PictoManagementClient
             string searchText = ImagesSearchbox.Text;
             string[] search = PrepareTextForSearching(searchText);
 
-            List<ImageItem> itemsToShow = new List<ImageItem>();
+            List<Model.ImageItem> itemsToShow = new List<Model.ImageItem>();
 
             SearchImages(ref itemsToShow, search);
-
-            itemsToShow = itemsToShow.OrderBy(o => o.title).ToList();
+            itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
             images_forNewDashboard.ItemsSource = itemsToShow;
             CreateDashboardButton.IsEnabled = true;
+
         }
 
         // Crea un dashboard y lo guarda en imagen
         private void CreateNewDashboard_Click(object sender, RoutedEventArgs e)
         {
-            List<ImageItem> imagesFromList = ((IEnumerable<ImageItem>)this.images_forNewDashboard.ItemsSource).ToList();
-            List<ImageItem> imagesToDashboard = new List<ImageItem>();
+            List<Model.ImageItem> imagesFromList = ((IEnumerable<Model.ImageItem>)this.images_forNewDashboard.ItemsSource).ToList();
+            List<Model.ImageItem> imagesToDashboard = new List<Model.ImageItem>();
             string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + NewDashboardTitle.Text + ".png";
 
-            foreach (ImageItem item in imagesFromList)
+            foreach (Model.ImageItem item in imagesFromList)
             {
-                if (item.isIncluded.IsChecked == true)
+                if (item.IsIncluded.IsChecked == true)
                 {
                     imagesToDashboard.Add(item);
                 }
@@ -417,18 +481,40 @@ namespace PictoManagementClient
 
             if (imagesToDashboard.Count > 0)
             {
-                // Crear imagen del dashboard y guardarlo en la lista
+                List<PictoManagementVocabulary.Image> images = new List<PictoManagementVocabulary.Image>();
 
-                if (ShareNewDashboard.IsChecked == true)
+                foreach (Model.ImageItem imageItem in imagesToDashboard)
                 {
-                    PrepareDashboardForServer(NewDashboardTitle.Text, imagesToDashboard);
+                    images.Add(new PictoManagementVocabulary.Image(imageItem.Title, imageItem.Image));
+                }
+
+                CreateDashboard(imagesToDashboard, canvasCreateZero);
+
+                string messageText = "Este es el tablero resultante, ¿guardar?";
+                string caption = "Tablero creado";
+                MessageBoxButton button = MessageBoxButton.OKCancel;
+                MessageBoxImage icon = MessageBoxImage.Information;
+                MessageBoxResult result = MessageBox.Show(messageText, caption, button, icon);
+
+                if (result == MessageBoxResult.OK)
+                {
+                    SaveDashboardFromCanvas(canvasCreateZero, NewDashboardTitle.Text, false);
+                    Dashboard dashboard = new Dashboard(NewDashboardTitle.Text, images.ToArray());
+                    dataAccess.IncludeDashboardInList(dashboard);
+
+                    if (ShareNewDashboard.IsChecked == true)
+                    {
+                        PrepareDashboardForServer(NewDashboardTitle.Text, imagesToDashboard);
+                    }
                 }
             }
 
+                
             NewDashboardTitle.Text = "";
             ImagesSearchbox.Text = "";
-            images_forNewDashboard.ItemsSource = new List<ImageItem>();
+            images_forNewDashboard.ItemsSource = new List<Model.ImageItem>();
             CreateDashboardButton.IsEnabled = false;
+            canvasCreateZero.Children.Clear();
         }
 
         /*  ------------ CREAR TABLERO A PARTIR DE UNO EXISTENTE ------------ */
@@ -438,31 +524,33 @@ namespace PictoManagementClient
             string searchText = DashboardSearchbox.Text;
             string[] search = PrepareTextForSearching(searchText);
 
-            List<ImageItem> itemsToShow = new List<ImageItem>();
+            List<Model.ImageItem> itemsToShow = new List<Model.ImageItem>();
 
-            itemsToShow.AddRange(SearchForDashboardLocally(search));
             try
             {
                 Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
                         Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                itemsToShow.AddRange(SearchForDashboardInServer(businessLayer, search));
+                SearchForDashboardInServer(ref itemsToShow, businessLayer, search, canvasCreateExisting);
             }
-            // Aqui quizas seria mejor mostrar un mensaje Toast
-            catch (Exception exc)
+            catch
             {
-                throw exc;
+                string messageText = "No es posible conectarse con el servidor";
+                string caption = "No hay conexion";
+                MessageBoxButton button = MessageBoxButton.OK;
+                MessageBoxImage icon = MessageBoxImage.Warning;
+                MessageBox.Show(messageText, caption, button, icon);
             }
 
-            itemsToShow = itemsToShow.OrderBy(o => o.title).ToList();
+            itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
             dashboards_fromServer.ItemsSource = itemsToShow;
 
-            DashboardSearchbox.Text = "";
+            
             EditSelectedDashboard.IsEnabled = true;
         }
 
         private void NewImagesExistingDashboard_Click(object sender, RoutedEventArgs e)
         {
-            List<ImageItem> imagesFromList = ((IEnumerable<ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
+            List<Model.ImageItem> imagesFromList = ((IEnumerable<Model.ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
             string searchText = SearchImagesForExistingDashboard.Text;
             string[] search = PrepareTextForSearching(searchText);
 
@@ -474,23 +562,23 @@ namespace PictoManagementClient
         // Selecciona un dashboard y saca sus imagenes
         private void EditSelectedDashboard_Click(object sender, RoutedEventArgs e)
         {
-            List<ImageItem> dashboardImagesFromList = ((IEnumerable<ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
-            List<ImageItem> imagesFromDashboard = new List<ImageItem>();
+            DashboardSearchbox.Text = "";
+            List<Model.ImageItem> dashboardImagesFromList = ((IEnumerable<Model.ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
+            List<Model.ImageItem> imagesFromDashboard = new List<Model.ImageItem>();
             Dashboard selectedDashboard = null;
 
-            foreach (ImageItem dashboardItem in dashboardImagesFromList)
+            foreach (Model.ImageItem dashboardItem in dashboardImagesFromList)
             {
-                // Coge el primer dashboard seleccionado
-                if (dashboardItem.isIncluded.IsEnabled == true)
+                if (dashboardItem.IsIncluded.IsChecked == true)
                 {
-                    selectedDashboard = GetDashboardFromTemporalDatabase(dashboardItem.title);
+                    selectedDashboard = dataAccess.GetDashboardFromTemporalList(dashboardItem.Title);
                     break;
                 }
             }
 
             if (selectedDashboard != null)
             {
-                DashboardTitle.Text = selectedDashboard.Title;
+                DashboardTitle.Text = selectedDashboard.Name;
                 List<string> imageTitles = new List<string>();
                 foreach (PictoManagementVocabulary.Image image in selectedDashboard.Images)
                 {
@@ -499,9 +587,9 @@ namespace PictoManagementClient
                 string[] imageArray = imageTitles.ToArray();
                 SearchImages(ref imagesFromDashboard, imageArray);
 
-                foreach (ImageItem imageItem in imagesFromDashboard)
+                foreach (Model.ImageItem imageItem in imagesFromDashboard)
                 {
-                    imageItem.isIncluded.IsEnabled = true;
+                    imageItem.IsIncluded.IsEnabled = true;
                 }
 
                 dashboards_fromServer.ItemsSource = imagesFromDashboard;
@@ -513,13 +601,12 @@ namespace PictoManagementClient
 
         private void SaveSelectedDashboard_Click(object sender, RoutedEventArgs e)
         {
-            List<ImageItem> imagesFromList = ((IEnumerable<ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
-            List<ImageItem> imagesToDashboard = new List<ImageItem>();
-            string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + DashboardTitle.Text + ".png";
+            List<Model.ImageItem> imagesFromList = ((IEnumerable<Model.ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
+            List<Model.ImageItem> imagesToDashboard = new List<Model.ImageItem>();
 
-            foreach (ImageItem item in imagesFromList)
+            foreach (Model.ImageItem item in imagesFromList)
             {
-                if (item.isIncluded.IsChecked == true)
+                if (item.IsIncluded.IsChecked == true)
                 {
                     imagesToDashboard.Add(item);
                 }
@@ -527,31 +614,51 @@ namespace PictoManagementClient
 
             if (imagesToDashboard.Count > 0)
             {
-                // Crear imagen del dashboard y guardarlo en la lista
+                List<PictoManagementVocabulary.Image> images = new List<PictoManagementVocabulary.Image>();
 
+                foreach (Model.ImageItem imageItem in imagesToDashboard)
+                {
+                    images.Add(new PictoManagementVocabulary.Image(imageItem.Title, imageItem.Image));
+                }
+
+                CreateDashboard(imagesToDashboard, canvasCreateExisting);
+
+                string messageText = "Este es el tablero resultante, ¿guardar?";
+                string caption = "Tablero creado";
+                MessageBoxButton button = MessageBoxButton.OKCancel;
+                MessageBoxImage icon = MessageBoxImage.Information;
+                MessageBoxResult result = MessageBox.Show(messageText, caption, button, icon);
+
+                if (result == MessageBoxResult.OK)
+                {
+                    SaveDashboardFromCanvas(canvasCreateExisting, DashboardTitle.Text, false);
+                    Dashboard dashboard = new Dashboard(DashboardTitle.Text, images.ToArray());
+                    dataAccess.IncludeDashboardInList(dashboard);
+                }
             }
 
             DashboardTitle.Text = "";
             SearchImagesForExistingDashboard.Text = "";
             DashboardSearchbox.Text = "";
-            dashboards_fromServer.ItemsSource = new List<ImageItem>();
+            dashboards_fromServer.ItemsSource = new List<Model.ImageItem>();
             SearchingImagesForExistingDashboard.IsEnabled = false;
             EditSelectedDashboard.IsEnabled = false;
             SaveSelectedDashboard.IsEnabled = false;
         }
 
         /*  ------------ MODIFICAR TABLERO EXISTENTE ------------ */
-
+        // Hay que capturar el dashboard y tenerlo guardado durante todo el proceso para luego eliminar el existente y generar uno nuevo
         private void MyDashboardsSearch_Click(object sender, RoutedEventArgs e)
         {
             string searchText = ModifyingDashboardSearchbox.Text;
             string[] search = PrepareTextForSearching(searchText);
 
-            List<ImageItem> dashboards = SearchForDashboardLocally(search);
+            List<Model.ImageItem> dashboards = new List<Model.ImageItem>();
+            SearchForDashboardLocally(ref dashboards, search);
 
             if (dashboards.Count != 0)
             {
-                dashboards = dashboards.OrderBy(o => o.title).ToList();
+                dashboards = dashboards.OrderBy(o => o.Title).ToList();
                 dashboard_andImages.ItemsSource = dashboards;
                 ModifyExistingDashboard.IsEnabled = true;
             }
@@ -567,36 +674,36 @@ namespace PictoManagementClient
 
         private void SearchImagesModifying_Click(object sender, RoutedEventArgs e)
         {
-            string searchText = ImagesSearchbox.Text;
+            string searchText = NewImageModifySearchbox.Text;
             string[] search = PrepareTextForSearching(searchText);
-            List<ImageItem> dashboardImagesFromList = ((IEnumerable<ImageItem>)this.dashboard_andImages.ItemsSource).ToList();
+            List<Model.ImageItem> dashboardImagesFromList = ((IEnumerable<Model.ImageItem>)this.dashboard_andImages.ItemsSource).ToList();
 
             SearchImages(ref dashboardImagesFromList, search);
 
-            dashboardImagesFromList = dashboardImagesFromList.OrderBy(o => o.title).ToList();
+            dashboardImagesFromList = dashboardImagesFromList.OrderBy(o => o.Title).ToList();
             dashboard_andImages.ItemsSource = dashboardImagesFromList;
         }
 
         private void ModifyMyDashboard_Click(object sender, RoutedEventArgs e)
         {
-            List<ImageItem> dashboardImagesFromList = ((IEnumerable<ImageItem>)this.dashboard_andImages.ItemsSource).ToList();
-            List<ImageItem> imagesFromDashboard = new List<ImageItem>();
+            List<Model.ImageItem> dashboardImagesFromList = ((IEnumerable<Model.ImageItem>)this.dashboard_andImages.ItemsSource).ToList();
+            List<Model.ImageItem> imagesFromDashboard = new List<Model.ImageItem>();
             Dashboard selectedDashboard = null;
 
-            foreach (ImageItem dashboardItem in dashboardImagesFromList)
+            foreach (Model.ImageItem dashboardItem in dashboardImagesFromList)
             {
                 // Coge el primer dashboard seleccionado
-                if (dashboardItem.isIncluded.IsEnabled == true)
+                if (dashboardItem.IsIncluded.IsEnabled == true)
                 {
-                    // Cambiarlo, esto se hace en la base de datos real
-                    selectedDashboard = GetDashboardFromTemporalDatabase(dashboardItem.title);
+                    selectedDashboard = dataAccess.GetDashboardFromList(dashboardItem.Title);
+                    _dashboardInUse = selectedDashboard;
                     break;
                 }
             }
 
             if (selectedDashboard != null)
             {
-                ModifiedTitle.Text = selectedDashboard.Title;
+                ModifiedTitle.Text = selectedDashboard.Name;
                 List<string> imageTitles = new List<string>();
                 foreach (PictoManagementVocabulary.Image image in selectedDashboard.Images)
                 {
@@ -605,9 +712,9 @@ namespace PictoManagementClient
                 string[] imageArray = imageTitles.ToArray();
                 SearchImages(ref imagesFromDashboard, imageArray);
 
-                foreach (ImageItem imageItem in imagesFromDashboard)
+                foreach (Model.ImageItem imageItem in imagesFromDashboard)
                 {
-                    imageItem.isIncluded.IsEnabled = true;
+                    imageItem.IsIncluded.IsEnabled = true;
                 }
 
                 dashboard_andImages.ItemsSource = imagesFromDashboard;
@@ -618,13 +725,13 @@ namespace PictoManagementClient
 
         private void SaveModifiedDashboard_Click(object sender, RoutedEventArgs e)
         {
-            List<ImageItem> imagesFromList = ((IEnumerable<ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
-            List<ImageItem> imagesToDashboard = new List<ImageItem>();
+            List<Model.ImageItem> imagesFromList = ((IEnumerable<Model.ImageItem>)this.dashboard_andImages.ItemsSource).ToList();
+            List<Model.ImageItem> imagesToDashboard = new List<Model.ImageItem>();
             string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + DashboardTitle.Text + ".png";
 
-            foreach (ImageItem item in imagesFromList)
+            foreach (Model.ImageItem item in imagesFromList)
             {
-                if (item.isIncluded.IsChecked == true)
+                if (item.IsIncluded.IsChecked == true)
                 {
                     imagesToDashboard.Add(item);
                 }
@@ -632,14 +739,34 @@ namespace PictoManagementClient
 
             if (imagesToDashboard.Count > 0)
             {
-                // Crear imagen del dashboard y guardarlo en la lista
+                List<PictoManagementVocabulary.Image> images = new List<PictoManagementVocabulary.Image>();
+
+                foreach (Model.ImageItem imageItem in imagesToDashboard)
+                {
+                    images.Add(new PictoManagementVocabulary.Image(imageItem.Title, imageItem.Image));
+                }
+
+                CreateDashboard(imagesToDashboard, canvasModify);
+
+                string messageText = "Este es el tablero resultante, ¿guardar?";
+                string caption = "Tablero creado";
+                MessageBoxButton button = MessageBoxButton.OKCancel;
+                MessageBoxImage icon = MessageBoxImage.Information;
+                MessageBoxResult result = MessageBox.Show(messageText, caption, button, icon);
+
+                if (result == MessageBoxResult.OK)
+                {
+                    SaveDashboardFromCanvas(canvasModify, ModifiedTitle.Text, false);
+                    Dashboard dashboard = new Dashboard(ModifiedTitle.Text, images.ToArray());
+                    dataAccess.IncludeDashboardInList(dashboard);
+                }
 
             }
 
             ModifyingDashboardSearchbox.Text = "";
             ModifiedTitle.Text = "";
             NewImageModifySearchbox.Text = "";
-            dashboard_andImages.ItemsSource = new List<ImageItem>();
+            dashboard_andImages.ItemsSource = new List<Model.ImageItem>();
             SearchImagesModifying.IsEnabled = false;
             ModifyExistingDashboard.IsEnabled = false;
             SaveModifiedDashboard.IsEnabled = false;
@@ -650,28 +777,21 @@ namespace PictoManagementClient
 
         private void SeeMyDashboards_Click(object sender, RoutedEventArgs e)
         {
-            List<ImageItem> imagesToShow = GetAllDashboards();
-            imagesToShow = imagesToShow.OrderBy(o => o.title).ToList();
+            List<Model.ImageItem> imagesToShow = GetAllDashboards();
+            imagesToShow = imagesToShow.OrderBy(o => o.Title).ToList();
 
             own_Dashboards.ItemsSource = imagesToShow;
         }
-    }
 
-    public class ImageItem
-    {
-        public string title { get; set; }
-        public string image { get; set; }
-        public CheckBox isIncluded { get; set; }
+        /*  ------------ CIERRE DE VENTANA ------------ */
 
-        public ImageItem(string _title, string _image, bool _include)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            title = _title;
-            image = _image;
-            this.isIncluded = new CheckBox
-            {
-                IsChecked = _include,
-                Content = "Incluir: " + _title
-            };
+            dataAccess.WriteDashboardToDatabase();
+            dataAccess.EmptyTempDirectory();
+            dataAccess.WriteDashboardToDatabase();
         }
     }
+
+
 }

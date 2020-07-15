@@ -37,9 +37,9 @@ namespace PictoManagementServer
         public void Start()
         {
             tcpListener.Start();
-            log.LogMessage("Started TCP Server");
+            //log.LogMessage("Started TCP Server");
 
-            log.LogMessage("Accepting clients");
+            //log.LogMessage("Accepting clients");
             AcceptClients(tcpListener);
 
         }
@@ -63,7 +63,7 @@ namespace PictoManagementServer
                 // Si ya se ha procesado la petición, ya ha acabado, se quita de la lista de control
                 for (int i = 0; i < listClients.Count; i++)
                 {
-                    if (listClients[i]._t.IsAlive)
+                    if (!listClients[i]._t.IsAlive)
                     {
                         listClients.RemoveAt(i);
                         i--;

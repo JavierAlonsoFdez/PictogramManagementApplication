@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using PictoManagementVocabulary;
 using System.Drawing.Imaging;
 
-namespace PictoManagementClient.DataAccessLayer
+namespace PictoManagementClient.Controller
 {
     /// <summary>
     /// Capa de acceso a datos
@@ -97,7 +97,7 @@ namespace PictoManagementClient.DataAccessLayer
 
             foreach (Dashboard dashboard in dashboards)
             {
-                if (dashboard.Title == dashboardName)
+                if (dashboard.Name == dashboardName)
                 {
                     imagesName = new string[dashboard.Images.Length];
                     int i = 0;
@@ -120,6 +120,7 @@ namespace PictoManagementClient.DataAccessLayer
         public void IncludeDashboardInList(Dashboard newDashboard)
         {
             dashboards.Add(ChangePathsInImages(newDashboard));
+            WriteDashboardToDatabase();
         }
 
         /// <summary>
@@ -140,7 +141,20 @@ namespace PictoManagementClient.DataAccessLayer
         /// <param name="newDashboard">Nuevo dashboard a incluir en la base de datos</param>
         public void WriteDashboardToDatabase()
         {
-            string json = JsonConvert.SerializeObject(dashboards.ToArray());
+            List<Dashboard> dashboardsToDB = new List<Dashboard>();
+            foreach (Dashboard dash in dashboards)
+            {
+                List<Image> imagesToDashboard = new List<Image>();
+                foreach (Image img in dash.Images)
+                {
+                    Image imageToDB = new Image(img.Title, img.Path);
+                    imageToDB.FileBase64 = null;
+                    imagesToDashboard.Add(imageToDB);
+                }
+                dashboardsToDB.Add(new Dashboard(dash.Name, imagesToDashboard.ToArray()));
+            }
+
+            string json = JsonConvert.SerializeObject(dashboardsToDB.ToArray());
             File.WriteAllText(ConfigDictionary["Dashboards"], json);
         }
 
@@ -157,7 +171,7 @@ namespace PictoManagementClient.DataAccessLayer
                 Image newImage = new Image(img.Title, ConfigDictionary["Images"] + img.Title + ".png");
                 newImagesList.Add(newImage);
             }
-            return new Dashboard(dashboard.Title, newImagesList.ToArray());
+            return new Dashboard(dashboard.Name, newImagesList.ToArray());
         }
 
         /// <summary>
@@ -226,7 +240,7 @@ namespace PictoManagementClient.DataAccessLayer
         {
             foreach (Dashboard dashboard in dashboards)
             {
-                if (dashboard.Title.Contains(dashboardName))
+                if (dashboard.Name.Contains(dashboardName))
                     return dashboard;
             }
             return null;
@@ -242,7 +256,10 @@ namespace PictoManagementClient.DataAccessLayer
             if (File.Exists(testTemporaryPath))
             {
                 string destinationPath = ConfigDictionary["Images"] + title + ".png";
-                File.Move(testTemporaryPath, destinationPath);
+                if (!File.Exists(destinationPath))
+                {
+                    File.Copy(testTemporaryPath, destinationPath);
+                }
             }
         }
 
@@ -273,7 +290,7 @@ namespace PictoManagementClient.DataAccessLayer
         {
             foreach (Dashboard tempDashboard in dashboardsTemp)
             {
-                if (tempDashboard.Title == dashboardName)
+                if (tempDashboard.Name == dashboardName)
                     dashboards.Add(tempDashboard);
             }
         }
@@ -287,9 +304,9 @@ namespace PictoManagementClient.DataAccessLayer
             List<System.Drawing.Image> dashboardsImages = new List<System.Drawing.Image>();
             foreach (Dashboard dash in dashboards)
             {
-                if (dash.Title == dashboardName)
+                if (dash.Name == dashboardName)
                 {
-                    string folderPath = ConfigDictionary["DashboardsFolder"] + dash.Title + ".png";
+                    string folderPath = ConfigDictionary["DashboardsFolder"] + dash.Name + ".png";
                     if (File.Exists(folderPath))
                     {
                         dashboardsImages.Add(System.Drawing.Image.FromFile(folderPath));
@@ -327,8 +344,14 @@ namespace PictoManagementClient.DataAccessLayer
         public void EmptyTempDirectory()
         {
             DirectoryInfo tempDirectory = new DirectoryInfo(ConfigDictionary["Temp"]);
+            DirectoryInfo tempDashboardsDirectory = new DirectoryInfo(ConfigDictionary["DashboardsTemp"]);
 
             foreach (FileInfo file in tempDirectory.GetFiles())
+            {
+                file.Delete();
+            }
+
+            foreach (FileInfo file in tempDashboardsDirectory.GetFiles())
             {
                 file.Delete();
             }
@@ -338,9 +361,75 @@ namespace PictoManagementClient.DataAccessLayer
         {
             foreach (Dashboard dashboard in dashboardsTemp)
             {
-                if (dashboard.Title == title)
+                if (dashboard.Name == title)
                 {
                     return dashboard;
+                }
+            }
+
+            return null;
+        }
+
+        public Dashboard GetDashboardFromTemporalList(Dashboard dash)
+        {
+            foreach (Dashboard dashboard in dashboardsTemp)
+            {
+                if (dashboard.Name == dash.Name)
+                {
+                    foreach (PictoManagementVocabulary.Image img in dashboard.Images)
+                    {
+                        img.FileBase64 = "";
+                    }
+                    foreach (PictoManagementVocabulary.Image image in dash.Images)
+                    {
+                        image.FileBase64 = "";
+                    }
+                    if (dashboard.Images == dash.Images)
+                    {
+                        return dashboard;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public void IncludeDashboardInTemporalList(Dashboard dash)
+        {
+            dashboardsTemp.Add(dash);
+        }
+
+        public Dashboard GetDashboardFromList(String dashTitle)
+        {
+            foreach (Dashboard dashboard in dashboards)
+            {
+                if (dashboard.Name == dashTitle)
+                {
+                    return dashboard;
+                }
+            }
+
+            return null;
+        }
+
+        public Dashboard GetDashboardFromList(Dashboard dash)
+        {
+            foreach (Dashboard dashboard in dashboards)
+            {
+                if (dashboard.Name == dash.Name)
+                {
+                    foreach (PictoManagementVocabulary.Image img in dashboard.Images)
+                    {
+                        img.FileBase64 = "";
+                    }
+                    foreach (PictoManagementVocabulary.Image image in dash.Images)
+                    {
+                        image.FileBase64 = "";
+                    }
+                    if (dashboard.Images == dash.Images)
+                    {
+                        return dashboard;
+                    }
                 }
             }
 

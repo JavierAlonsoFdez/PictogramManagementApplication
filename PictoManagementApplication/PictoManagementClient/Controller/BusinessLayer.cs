@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using PictoManagementVocabulary;
+using System.Threading;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -61,13 +62,15 @@ namespace PictoManagementClient.Controller
         {
             Connect();
 
-            BinaryCodec<Image> binCodImage = new BinaryCodec<Image>();
-            BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
+            //BinaryCodec<Image> binCodImage = new BinaryCodec<Image>();
+            //BinaryCodec<Request> binCodReq = new BinaryCodec<Request>();
+            BinaryCodecRequest binCodReq = new BinaryCodecRequest();
+            BinaryCodecImage binCodImage = new BinaryCodecImage();
             Image[] imagesReceived = new Image[imagesRequested.Length];
             int position = 0;
 
-            foreach (string image in imagesRequested)
-            {
+            Parallel.For(0, imagesRequested.Length,new ParallelOptions { MaxDegreeOfParallelism = 4 }, (i)=>{
+                string image = imagesRequested[i];
                 Request request = new Request("Get image", image);
                 byte[] sndBuffer = binCodReq.Encode(request);
 
@@ -78,7 +81,11 @@ namespace PictoManagementClient.Controller
                 byte[] receivedBuffer = binReader.ReadBytes(receiveBytes);
                 imagesReceived[position] = binCodImage.Decode(receivedBuffer);
                 position++;
-            }
+            });
+            /*foreach (string image in imagesRequested)
+            {
+                
+            }*/
             Dispose();
             return imagesReceived;
         }
