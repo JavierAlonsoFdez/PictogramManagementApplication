@@ -89,7 +89,7 @@ namespace PictoManagementClient
         /// </summary>
         /// <param name="dashboardNames">Array con el contenido a buscar</param>
         /// <returns>Lista de resultados encontrados</returns>
-        private void SearchForDashboardLocally(ref List<Model.ImageItem> dashboardList,string[] dashboardNames)
+        private void SearchForDashboardLocally(List<Model.ImageItem> dashboardList,string[] dashboardNames)
         {
             List<Model.ImageItem> dashboardImages = new List<Model.ImageItem>();
             List<Dashboard> dashboardsResult = new List<Dashboard>();
@@ -131,7 +131,7 @@ namespace PictoManagementClient
         /// <param name="businessLayer">Controlador de negocio</param>
         /// <param name="dashboardNames">Array con el nombre de los tableros buscados</param>
         /// <returns>Retorna una lista con las vistas previas del tablero</returns>
-        private void SearchForDashboardInServer(ref List<Model.ImageItem> dashboardList, Controller.BusinessLayer businessLayer, 
+        private void SearchForDashboardInServer(List<Model.ImageItem> dashboardList, Controller.BusinessLayer businessLayer, 
             string[] dashboardNames, Canvas canvas)
         {
             List<Model.ImageItem> dashboardImages = new List<Model.ImageItem>();
@@ -468,14 +468,14 @@ namespace PictoManagementClient
             Task.Run(() => {
                 if (check == true)
                 {
-                    SearchForDashboardLocally(ref itemsToShow, search);
+                    SearchForDashboardLocally(itemsToShow, search);
                     if (itemsToShow.Count() == 0)
                     {
                         try
                         {
                             Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
                                     Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                            SearchForDashboardInServer(ref itemsToShow, businessLayer, search, searchCanvas);
+                            SearchForDashboardInServer(itemsToShow, businessLayer, search, searchCanvas);
                         }
                         catch
                         {
@@ -636,7 +636,7 @@ namespace PictoManagementClient
                 {
                     Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
                             Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                    SearchForDashboardInServer(ref itemsToShow, businessLayer, search, canvasCreateExisting);
+                    SearchForDashboardInServer(itemsToShow, businessLayer, search, canvasCreateExisting);
                 }
                 catch
                 {
@@ -796,7 +796,7 @@ namespace PictoManagementClient
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             Task.Run(()=> 
             { 
-                SearchForDashboardLocally(ref dashboards, search);
+                SearchForDashboardLocally(dashboards, search);
 
                 if (dashboards.Count != 0)
                 {
