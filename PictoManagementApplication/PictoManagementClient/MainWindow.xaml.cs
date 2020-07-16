@@ -161,9 +161,9 @@ namespace PictoManagementClient
                 string[] imgArray = images.ToArray();
                 SearchImages(imagesInDashboard, imgArray);
 
-                CreateDashboard(imagesInDashboard, canvas);
+                this.Dispatcher.Invoke(() => CreateDashboard(imagesInDashboard, canvas));
                 canvas.Dispatcher.Invoke(() => { }, DispatcherPriority.Render);
-                SaveDashboardFromCanvas(canvas, dash.Name, true);
+                this.Dispatcher.Invoke(() => SaveDashboardFromCanvas(canvas, dash.Name, true));
                 dataAccess.IncludeDashboardInTemporalList(dash);
 
                 string dashboardPath = dataAccess.ConfigDictionary["DashboardsTemp"] + dash.Name + ".png";
@@ -469,6 +469,23 @@ namespace PictoManagementClient
                 if (check == true)
                 {
                     SearchForDashboardLocally(ref itemsToShow, search);
+                    if (itemsToShow.Count() == 0)
+                    {
+                        try
+                        {
+                            Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
+                                    Int32.Parse(dataAccess.ConfigDictionary["Port"]));
+                            SearchForDashboardInServer(ref itemsToShow, businessLayer, search, searchCanvas);
+                        }
+                        catch
+                        {
+                            string messageText = "No es posible conectarse con el servidor";
+                            string caption = "No hay conexion";
+                            MessageBoxButton button = MessageBoxButton.OK;
+                            MessageBoxImage icon = MessageBoxImage.Warning;
+                            MessageBox.Show(messageText, caption, button, icon);
+                        }
+                    }
                 }
                 // Si el checkbox no está checkeado, se buscan imagenes
                 else
@@ -600,27 +617,29 @@ namespace PictoManagementClient
             string[] search = PrepareTextForSearching(searchText);
 
             List<Model.ImageItem> itemsToShow = new List<Model.ImageItem>();
+            Task.Run(() => { 
+                try
+                {
+                    Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
+                            Int32.Parse(dataAccess.ConfigDictionary["Port"]));
+                    SearchForDashboardInServer(ref itemsToShow, businessLayer, search, canvasCreateExisting);
+                }
+                catch
+                {
+                    string messageText = "No es posible conectarse con el servidor";
+                    string caption = "No hay conexion";
+                    MessageBoxButton button = MessageBoxButton.OK;
+                    MessageBoxImage icon = MessageBoxImage.Warning;
+                    MessageBox.Show(messageText, caption, button, icon);
+                }
 
-            try
-            {
-                Controller.BusinessLayer businessLayer = new Controller.BusinessLayer(dataAccess.ConfigDictionary["Address"],
-                        Int32.Parse(dataAccess.ConfigDictionary["Port"]));
-                SearchForDashboardInServer(ref itemsToShow, businessLayer, search, canvasCreateExisting);
-            }
-            catch
-            {
-                string messageText = "No es posible conectarse con el servidor";
-                string caption = "No hay conexion";
-                MessageBoxButton button = MessageBoxButton.OK;
-                MessageBoxImage icon = MessageBoxImage.Warning;
-                MessageBox.Show(messageText, caption, button, icon);
-            }
-
-            itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
-            dashboards_fromServer.ItemsSource = itemsToShow;
-
-            
-            EditSelectedDashboard.IsEnabled = true;
+                this.Dispatcher.Invoke(() =>
+                {
+                    itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
+                    dashboards_fromServer.ItemsSource = itemsToShow;
+                    EditSelectedDashboard.IsEnabled = true;
+                });
+            });
         }
 
         private void NewImagesExistingDashboard_Click(object sender, RoutedEventArgs e)
