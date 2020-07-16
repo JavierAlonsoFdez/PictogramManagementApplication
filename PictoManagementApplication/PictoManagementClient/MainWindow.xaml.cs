@@ -498,6 +498,8 @@ namespace PictoManagementClient
                     itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
                     list_Images.ItemsSource = itemsToShow;
 
+                    searchCanvas.Children.Clear();
+
                     MainSearchbox.Text = "";
                     this.IsEnabled = true;
                     Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
@@ -514,6 +516,8 @@ namespace PictoManagementClient
             string[] search = PrepareTextForSearching(searchText);
 
             List<Model.ImageItem> itemsToShow = new List<Model.ImageItem>();
+            this.IsEnabled = false;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             Task.Run(() =>
             {
                 SearchImages(itemsToShow, search);
@@ -522,6 +526,8 @@ namespace PictoManagementClient
                     itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
                     images_forNewDashboard.ItemsSource = itemsToShow;
                     CreateDashboardButton.IsEnabled = true;
+                    this.IsEnabled = true;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                 });
             });
             
@@ -558,6 +564,8 @@ namespace PictoManagementClient
                 }
             }
 
+            this.IsEnabled = false;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             Task.Run(() =>
             {
                 foreach (Model.ImageItem item in imagesFromList)
@@ -604,6 +612,8 @@ namespace PictoManagementClient
                     images_forNewDashboard.ItemsSource = new List<Model.ImageItem>();
                     CreateDashboardButton.IsEnabled = false;
                     canvasCreateZero.Children.Clear();
+                    this.IsEnabled = true;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                 });
 
             });
@@ -618,6 +628,9 @@ namespace PictoManagementClient
             string[] search = PrepareTextForSearching(searchText);
 
             List<Model.ImageItem> itemsToShow = new List<Model.ImageItem>();
+
+            this.IsEnabled = false;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             Task.Run(() => { 
                 try
                 {
@@ -639,6 +652,9 @@ namespace PictoManagementClient
                     itemsToShow = itemsToShow.OrderBy(o => o.Title).ToList();
                     dashboards_fromServer.ItemsSource = itemsToShow;
                     EditSelectedDashboard.IsEnabled = true;
+
+                    this.IsEnabled = true;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                 });
             });
         }
@@ -649,11 +665,15 @@ namespace PictoManagementClient
             string searchText = SearchImagesForExistingDashboard.Text;
             string[] search = PrepareTextForSearching(searchText);
 
+            this.IsEnabled = false;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             Task.Run(() => { 
                 SearchImages(imagesFromList, search);
                 this.Dispatcher.Invoke(() => 
                 { 
                     dashboards_fromServer.ItemsSource = imagesFromList;
+                    this.IsEnabled = true;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                 });
             });
         }
@@ -666,6 +686,8 @@ namespace PictoManagementClient
             List<Model.ImageItem> imagesFromDashboard = new List<Model.ImageItem>();
             Dashboard selectedDashboard = null;
 
+            this.IsEnabled = false;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             Task.Run(() => {
                 foreach (Model.ImageItem dashboardItem in dashboardImagesFromList)
                 {
@@ -697,6 +719,8 @@ namespace PictoManagementClient
                         dashboards_fromServer.ItemsSource = imagesFromDashboard;
                         SearchingImagesForExistingDashboard.IsEnabled = true;
                         SaveSelectedDashboard.IsEnabled = true;
+                        this.IsEnabled = true;
+                        Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                     });
                 }
             });
@@ -707,6 +731,8 @@ namespace PictoManagementClient
             List<Model.ImageItem> imagesFromList = ((IEnumerable<Model.ImageItem>)this.dashboards_fromServer.ItemsSource).ToList();
             List<Model.ImageItem> imagesToDashboard = new List<Model.ImageItem>();
 
+            this.IsEnabled = false;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             Task.Run(() => { 
                 foreach (Model.ImageItem item in imagesFromList)
                 {
@@ -752,6 +778,8 @@ namespace PictoManagementClient
                     SearchingImagesForExistingDashboard.IsEnabled = false;
                     EditSelectedDashboard.IsEnabled = false;
                     SaveSelectedDashboard.IsEnabled = false;
+                    this.IsEnabled = true;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                 });
             });
         }
