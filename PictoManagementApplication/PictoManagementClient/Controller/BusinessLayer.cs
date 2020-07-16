@@ -37,6 +37,7 @@ namespace PictoManagementClient.Controller
         public TcpClient  Connect()
         {
             TcpClient tcpClient = new TcpClient();
+            tcpClient.ReceiveTimeout = 15000;
             tcpClient.Connect(_ipEndPoint);
             return tcpClient;
         }

@@ -241,7 +241,7 @@ namespace PictoManagementClient
                 }  
                 catch
                 {
-                    string messageText = "No es posible conectarse con el servidor";
+                    string messageText = "No es posible conectarse con el servidor o no se recibe respuesta";
                     string caption = "No hay conexion";
                     MessageBoxButton button = MessageBoxButton.OK;
                     MessageBoxImage icon = MessageBoxImage.Warning;
@@ -298,7 +298,7 @@ namespace PictoManagementClient
             }
             catch
             {
-                string messageText = "No es posible conectarse con el servidor";
+                string messageText = "No es posible conectarse con el servidor o no se recibe respuesta";
                 string caption = "No hay conexion";
                 MessageBoxButton button = MessageBoxButton.OK;
                 MessageBoxImage icon = MessageBoxImage.Warning;
@@ -479,7 +479,7 @@ namespace PictoManagementClient
                         }
                         catch
                         {
-                            string messageText = "No es posible conectarse con el servidor";
+                            string messageText = "No es posible conectarse con el servidor o no se recibe respuesta";
                             string caption = "No hay conexion";
                             MessageBoxButton button = MessageBoxButton.OK;
                             MessageBoxImage icon = MessageBoxImage.Warning;
@@ -640,7 +640,7 @@ namespace PictoManagementClient
                 }
                 catch
                 {
-                    string messageText = "No es posible conectarse con el servidor";
+                    string messageText = "No es posible conectarse con el servidor o no se recibe respuesta";
                     string caption = "No hay conexion";
                     MessageBoxButton button = MessageBoxButton.OK;
                     MessageBoxImage icon = MessageBoxImage.Warning;
