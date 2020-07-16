@@ -329,7 +329,7 @@ namespace PictoManagementClient
                 string fileName = dashboard.Substring(indexOfFolder);
                 string fileTitle = fileName.Split('.')[0];
 
-                imageItems.Add(new Model.ImageItem(fileTitle, dashboard, false));
+                this.Dispatcher.Invoke(() => imageItems.Add(new Model.ImageItem(fileTitle, dashboard, false)));
             }
             
 
@@ -957,19 +957,32 @@ namespace PictoManagementClient
 
         private void SeeMyDashboards_Click(object sender, RoutedEventArgs e)
         {
-            List<Model.ImageItem> imagesToShow = GetAllDashboards();
-            imagesToShow = imagesToShow.OrderBy(o => o.Title).ToList();
+            this.IsEnabled = false;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+            Task.Run(() =>
+            {
+                List<Model.ImageItem> imagesToShow = GetAllDashboards();
+                this.Dispatcher.Invoke(() =>
+                {
+                    imagesToShow = imagesToShow.OrderBy(o => o.Title).ToList();
+                    own_Dashboards.ItemsSource = imagesToShow;
 
-            own_Dashboards.ItemsSource = imagesToShow;
+                    this.IsEnabled = true;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                });
+            });
         }
 
         /*  ------------ CIERRE DE VENTANA ------------ */
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            dataAccess.WriteDashboardToDatabase();
-            dataAccess.EmptyTempDirectory();
-            dataAccess.WriteDashboardToDatabase();
+            Task.Run(() =>
+            {
+                dataAccess.WriteDashboardToDatabase();
+                dataAccess.EmptyTempDirectory();
+                dataAccess.WriteDashboardToDatabase();
+            });
         }
     }
 }
