@@ -519,50 +519,79 @@ namespace PictoManagementClient
             List<Model.ImageItem> imagesToDashboard = new List<Model.ImageItem>();
             string dashboardPath = dataAccess.ConfigDictionary["DashboardsFolder"] + NewDashboardTitle.Text + ".png";
 
-            foreach (Model.ImageItem item in imagesFromList)
+            if (File.Exists(dashboardPath))
             {
-                if (item.IsIncluded.IsChecked == true)
-                {
-                    imagesToDashboard.Add(item);
-                }
-            }
-
-            if (imagesToDashboard.Count > 0)
-            {
-                List<PictoManagementVocabulary.Image> images = new List<PictoManagementVocabulary.Image>();
-
-                foreach (Model.ImageItem imageItem in imagesToDashboard)
-                {
-                    images.Add(new PictoManagementVocabulary.Image(imageItem.Title, imageItem.Image));
-                }
-
-                CreateDashboard(imagesToDashboard, canvasCreateZero);
-
-                string messageText = "Este es el tablero resultante, ¿guardar?";
-                string caption = "Tablero creado";
-                MessageBoxButton button = MessageBoxButton.OKCancel;
-                MessageBoxImage icon = MessageBoxImage.Information;
+                string messageText = "No es posible crear un tablero con este nombre porque ya existe";
+                string caption = "Nombre duplicado";
+                MessageBoxButton button = MessageBoxButton.OK;
+                MessageBoxImage icon = MessageBoxImage.Warning;
                 MessageBoxResult result = MessageBox.Show(messageText, caption, button, icon);
-
                 if (result == MessageBoxResult.OK)
                 {
-                    SaveDashboardFromCanvas(canvasCreateZero, NewDashboardTitle.Text, false);
-                    Dashboard dashboard = new Dashboard(NewDashboardTitle.Text, images.ToArray());
-                    dataAccess.IncludeDashboardInList(dashboard);
-
-                    if (ShareNewDashboard.IsChecked == true)
-                    {
-                        PrepareDashboardForServer(NewDashboardTitle.Text, imagesToDashboard);
-                    }
+                    NewDashboardTitle.Text = "";
+                    ImagesSearchbox.Text = "";
+                    images_forNewDashboard.ItemsSource = new List<Model.ImageItem>();
+                    return;
+                }
+                else
+                {
+                    NewDashboardTitle.Text = "";
+                    ImagesSearchbox.Text = "";
+                    images_forNewDashboard.ItemsSource = new List<Model.ImageItem>();
+                    return;
                 }
             }
 
-                
-            NewDashboardTitle.Text = "";
-            ImagesSearchbox.Text = "";
-            images_forNewDashboard.ItemsSource = new List<Model.ImageItem>();
-            CreateDashboardButton.IsEnabled = false;
-            canvasCreateZero.Children.Clear();
+            Task.Run(() =>
+            {
+                foreach (Model.ImageItem item in imagesFromList)
+                {
+                    if (this.Dispatcher.Invoke(() => item.IsIncluded.IsChecked == true))
+                    {
+                        imagesToDashboard.Add(item);
+                    }
+                }
+
+                if (imagesToDashboard.Count > 0)
+                {
+                    List<PictoManagementVocabulary.Image> images = new List<PictoManagementVocabulary.Image>();
+
+                    foreach (Model.ImageItem imageItem in imagesToDashboard)
+                    {
+                        images.Add(new PictoManagementVocabulary.Image(imageItem.Title, imageItem.Image));
+                    }
+
+                    this.Dispatcher.Invoke(() => CreateDashboard(imagesToDashboard, canvasCreateZero));
+
+                    string messageText = "Este es el tablero resultante, ¿guardar?";
+                    string caption = "Tablero creado";
+                    MessageBoxButton button = MessageBoxButton.OKCancel;
+                    MessageBoxImage icon = MessageBoxImage.Information;
+                    MessageBoxResult result = MessageBox.Show(messageText, caption, button, icon);
+
+                    if (result == MessageBoxResult.OK)
+                    {
+                        this.Dispatcher.Invoke(() => SaveDashboardFromCanvas(canvasCreateZero, NewDashboardTitle.Text, false));
+                        Dashboard dashboard = new Dashboard(this.Dispatcher.Invoke(() => NewDashboardTitle.Text), this.Dispatcher.Invoke(() => images.ToArray()));
+                        dataAccess.IncludeDashboardInList(dashboard);
+
+                        if (this.Dispatcher.Invoke(() => ShareNewDashboard.IsChecked == true))
+                        {
+                            PrepareDashboardForServer(NewDashboardTitle.Text, imagesToDashboard);
+                        }
+                    }
+                }
+                this.Dispatcher.Invoke(() =>
+                {
+                    NewDashboardTitle.Text = "";
+                    ImagesSearchbox.Text = "";
+                    images_forNewDashboard.ItemsSource = new List<Model.ImageItem>();
+                    CreateDashboardButton.IsEnabled = false;
+                    canvasCreateZero.Children.Clear();
+                });
+
+            });
+            
         }
 
         /*  ------------ CREAR TABLERO A PARTIR DE UNO EXISTENTE ------------ */
