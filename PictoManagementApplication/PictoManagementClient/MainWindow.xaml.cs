@@ -980,8 +980,18 @@ namespace PictoManagementClient
             Task.Run(() =>
             {
                 dataAccess.WriteDashboardToDatabase();
-                dataAccess.EmptyTempDirectory();
-                dataAccess.WriteDashboardToDatabase();
+                try
+                {
+                    dataAccess.EmptyTempDirectory();
+                }
+                catch
+                {
+                    string messageText = "Ocurrio un error intentando borrar los datos de las carpetas temporales";
+                    string caption = "Error borrando ficheros temporales";
+                    MessageBoxButton button = MessageBoxButton.OK;
+                    MessageBoxImage icon = MessageBoxImage.Warning;
+                    MessageBox.Show(messageText, caption, button, icon);
+                }
             });
         }
     }
