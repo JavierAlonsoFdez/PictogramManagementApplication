@@ -167,7 +167,7 @@ namespace PictoManagementClient
                 dataAccess.IncludeDashboardInTemporalList(dash);
 
                 string dashboardPath = dataAccess.ConfigDictionary["DashboardsTemp"] + dash.Name + ".png";
-                dashboardImages.Add(new Model.ImageItem(dash.Name, dashboardPath, false));
+                this.Dispatcher.Invoke(() => dashboardImages.Add(new Model.ImageItem(dash.Name, dashboardPath, false)));
             }
             if (dashboardImages != null)
             {
@@ -486,8 +486,6 @@ namespace PictoManagementClient
                     Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                 });
             });
-
-            // Si el checkbox está checkeado, se buscan dashboards
         }
 
         /*  ------------ CREAR TABLERO DESDE CERO ------------ */
@@ -577,7 +575,7 @@ namespace PictoManagementClient
 
                         if (this.Dispatcher.Invoke(() => ShareNewDashboard.IsChecked == true))
                         {
-                            PrepareDashboardForServer(NewDashboardTitle.Text, imagesToDashboard);
+                            PrepareDashboardForServer(this.Dispatcher.Invoke(() => NewDashboardTitle.Text), this.Dispatcher.Invoke(() => imagesToDashboard));
                         }
                     }
                 }
