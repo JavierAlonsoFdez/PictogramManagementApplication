@@ -27,11 +27,11 @@
                         </ListView.RenderTransform>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Título" Width="120" DisplayMemberBinding="{Binding Title}"/>
-                                <GridViewColumn Header="Vista Previa" Width="450">
+                                <GridViewColumn Header="Título" Width="200" DisplayMemberBinding="{Binding Title}"/>
+                                <GridViewColumn Header="Vista Previa" Width="370">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="200" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -64,14 +64,14 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding Title}"/>
-                                <GridViewColumn Header="Vista Previa" Width="335">
+                                <GridViewColumn Header="Vista Previa" Width="250">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="200" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="100">
+                                <GridViewColumn Header="Incluir" Width="170">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox IsThreeState="False" IsChecked="{Binding IsIncluded.IsChecked}" Content="{Binding IsIncluded.Content}"/>
@@ -112,14 +112,14 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding Title}"/>
-                                <GridViewColumn Header="Vista Previa" Width="335">
+                                <GridViewColumn Header="Vista Previa" Width="250">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="200" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90">
+                                <GridViewColumn Header="Incluir" Width="170">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox IsThreeState="False" IsChecked="{Binding IsIncluded.IsChecked}" Content="{Binding IsIncluded.Content}"/>
@@ -158,14 +158,14 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Título" Width="100" DisplayMemberBinding="{Binding Title}"/>
-                                <GridViewColumn Header="Vista Previa" Width="335">
+                                <GridViewColumn Header="Vista Previa" Width="250">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image x:Name="MyImage" Source="{Binding Image}" Width="200" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Incluir" Width="90">
+                                <GridViewColumn Header="Incluir" Width="170">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox IsThreeState="False" IsChecked="{Binding IsIncluded.IsChecked}" Content="{Binding IsIncluded.Content}"/>

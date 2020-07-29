@@ -771,6 +771,7 @@ namespace PictoManagementClient
                 { 
                     dataAccess.CleanDashboardTemporalList();
 
+                    canvasCreateExisting.Children.Clear();
                     DashboardTitle.Text = "";
                     SearchImagesForExistingDashboard.Text = "";
                     DashboardSearchbox.Text = "";
@@ -938,6 +939,7 @@ namespace PictoManagementClient
 
                 this.Dispatcher.Invoke(() =>
                 {
+                    canvasModify.Children.Clear();
                     ModifyingDashboardSearchbox.Text = "";
                     ModifiedTitle.Text = "";
                     NewImageModifySearchbox.Text = "";
